@@ -1,9 +1,4 @@
 <template>
-  <div class="card flex justify-center">
-    <Button label="Verify" />
-  </div>
+  <RouterView>
+  </RouterView>
 </template>
-
-<script setup>
-import Button from "primevue/button"
-</script>
