@@ -14,7 +14,10 @@ const router = createRouter({
 
 app.use(PrimeVue, {
     theme: {
-        preset: Aura
+        preset: Aura,
+        options: {
+            darkModeSelector: ".p-dark",
+        },
     }
 });
 
