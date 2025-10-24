@@ -98,14 +98,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import {ref} from 'vue'
+import {useRouter} from 'vue-router'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Message from 'primevue/message'
 import ForgotPasswordModal from "@/components/ForgotPasswordModal.vue";
+import api from '@/api/client'
 
 const router = useRouter()
 
@@ -124,7 +125,7 @@ const isLoading = ref(false)
 const globalError = ref('')
 
 const validateForm = () => {
-  errors.value = { email: '', password: '' }
+  errors.value = {email: '', password: ''}
   let isValid = true
 
   if (!form.value.email) {
@@ -155,16 +156,12 @@ const handleLogin = async () => {
 
   try {
     // Замените на реальный API запрос
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: form.value.email,
-        password: form.value.password,
-      }),
-    })
+    const response = await api.post('/api/login',
+        {
+          email: form.value.email,
+          password: form.value.password,
+        }
+    )
 
     if (!response.ok) {
       throw new Error('Ошибка входа')

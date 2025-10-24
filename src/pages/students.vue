@@ -236,7 +236,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputGroup from 'primevue/inputgroup'
@@ -245,6 +244,7 @@ import Message from 'primevue/message'
 import Skeleton from 'primevue/skeleton'
 import ProgressBar from 'primevue/progressbar'
 import Paginator from 'primevue/paginator'
+import api from '@/api/client'
 
 const router = useRouter()
 
@@ -263,8 +263,8 @@ const getStudents = async () => {
   errorMessage.value = ''
 
   try {
-    const response = await axios.get(
-        'https://byteschool.online:5001/api/users'
+    const response = await api.get(
+        '/api/users'
     )
     allStudents.value = response.data || []
 
