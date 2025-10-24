@@ -348,7 +348,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
 import Skeleton from 'primevue/skeleton'
@@ -357,6 +356,7 @@ import TabPanel from 'primevue/tabpanel'
 import ProgressBar from 'primevue/progressbar'
 import Checkbox from 'primevue/checkbox'
 import CompleteAchievementsModal from '@/components/CompleteAchievementsModal.vue'
+import api from '@/api/client'
 
 const router = useRouter()
 const route = useRoute()
@@ -380,20 +380,20 @@ const loadStudentData = async () => {
 
   try {
     // 1. Получить информацию о студенте
-    const studentResponse = await axios.get(
-        `https://byteschool.online:5001/api/users/${studentId.value}`
+    const studentResponse = await api.get(
+        `/api/users/${studentId.value}`
     )
     student.value = studentResponse.data
 
     // 2. Получить все достижения
-    const achievementsResponse = await axios.get(
-        'https://byteschool.online:5001/api/achievements'
+    const achievementsResponse = await api.get(
+        '/api/achievements'
     )
     allAchievements.value = achievementsResponse.data || []
 
     // 3. Получить выполненные достижения студента
-    const completedResponse = await axios.get(
-        `https://byteschool.online:5001/api/CompletedAchievements/${studentId.value}`
+    const completedResponse = await api.get(
+        `/api/CompletedAchievements/${studentId.value}`
     )
     // Сохранить ID выполненных достижений
     completedAchievementIds.value = (completedResponse.data || []).map(
@@ -486,8 +486,8 @@ const completeSelectedAchievements = async () => {
   try {
     // API запрос для выполнения достижений
     // Замените на реальный endpoint вашего API
-    await axios.post(
-        `https://byteschool.online:5001/api/CompletedAchievements/${studentId.value}`,
+    await api.post(
+        `/api/CompletedAchievements/${studentId.value}`,
         {
           achievementIds: selectedAchievements.value
         }
