@@ -1,10 +1,11 @@
 <template>
    <div class="wrapper">
-    <div class="card" @click="open(visible)">
-        <p>email:{{email}}</p>
-        <codeModal v-model:visible="visible" v-if="visible == true" id="position"></codeModal>
-    </div>
-    
+     <Card @click="open(visible)" id="card">
+        <template #content>
+            <p class="m-0">email:{{email}}</p>
+            <codeModal v-model:visible="visible" v-if="visible == true" id="position"></codeModal>
+        </template>
+    </Card>
    </div>
 </template>
 
@@ -32,13 +33,11 @@ function open(){
     align-items: center;
     flex-direction: column;
 }
-.card{
-    width:50%;
-    padding:3%;
-    background-color: rgb(185, 237, 237);
-    border: 1px solid aqua;
-    border-radius: 15px;
+#card{
+    width:80%;
     margin-top: 5%;
-    
+    border: 1px solid;
+    background-color: var(--p-emerald-300) !important;
+    border-color: var(--color-green-500) !important;
 }
 </style>
