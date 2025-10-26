@@ -1,13 +1,12 @@
-// src/stores/authStore.ts
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
     // State
-    const userId = ref<string | null>(null);
-    const authToken = ref<string | null>(null);
-    const refreshToken = ref<string | null>(null);
-    const userRole = ref<string | null>(null);
+    const userId = ref(null);
+    const authToken = ref(null);
+    const refreshToken = ref(null);
+    const userRole = ref(null);
 
     // Getters
     const isAuthenticated = computed(() => !!authToken.value);

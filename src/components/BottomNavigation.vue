@@ -20,16 +20,29 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
+import {useRoute} from 'vue-router'
+import {useAuthStore} from "@/stores/auth.js";
+import {onMounted, ref} from "vue";
 
 const route = useRoute()
+const authStore = useAuthStore()
 
-const navItems = [
-  { name: 'home', path: '/', label: 'Главная', icon: 'pi pi-home' },
-  { name: 'students', path: '/search', label: 'Топ', icon: 'pi pi-users' },
-  { name: 'codes', path: '/codes', label: 'Коды', icon: 'pi pi-key' },
-  { name: 'scanner', path: '/scanner', label: 'Сканнер', icon: 'pi pi-qrcode' }
-]
+const navItems = ref([
+  {name: 'home', path: '/', label: 'Главная', icon: 'pi pi-home'},
+  {name: 'students', path: '/search', label: 'Топ', icon: 'pi pi-users'}
+])
+
+onMounted(() => {
+  const role = authStore.userRole
+
+  if (role === 2 || role === 3) {
+    navItems.value = [
+      {name: 'home', path: '/', label: 'Главная', icon: 'pi pi-home'},
+      {name: 'students', path: '/search', label: 'Топ', icon: 'pi pi-users'},
+      ...navItems.value
+    ]
+  }
+})
 
 const isActive = (path) => route.path === path
 </script>
