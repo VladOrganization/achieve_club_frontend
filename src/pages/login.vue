@@ -1,5 +1,5 @@
 <template>
-  <ForgotPasswordModal :v-model="true"/>
+  <ForgotPasswordModal v-model="showForgotPasswordModal"/>
 
   <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
@@ -71,18 +71,12 @@
 
       <!-- Дополнительные ссылки -->
       <div class="mt-6 flex items-center justify-between text-sm">
-        <router-link
-            to="/forgot-password"
-            class="text-indigo-600 hover:text-indigo-800 font-medium"
-        >
+        <Button link @click="showForgotPasswordModal = true">
           Забыли пароль?
-        </router-link>
-        <router-link
-            to="/register"
-            class="text-indigo-600 hover:text-indigo-800 font-medium"
-        >
+        </Button>
+        <Button link @click="router.push('/register')">
           Зарегистрироваться
-        </router-link>
+        </Button>
       </div>
 
       <!-- Сообщение об ошибке -->
@@ -98,7 +92,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {ref, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
@@ -111,6 +105,12 @@ import {useAuthStore} from "@/stores/auth.js";
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+const showForgotPasswordModal = defineModel()
+
+watch(showForgotPasswordModal, (newVal) => {
+  console.log("click", newVal)
+})
 
 const form = ref({
   email: '',
@@ -156,30 +156,20 @@ const handleLogin = async () => {
 
   isLoading.value = true
 
-  try {
-    // Замените на реальный API запрос
-    const response = await api.post('/api/auth/login?api-version=1.1',
-        {
-          email: form.value.email,
-          password: form.value.password,
-        }
-    )
-
-    if (!response.ok) {
-      throw new Error('Ошибка входа')
-    }
-
-    const data = await response.json()
-
-    authStore.setAuthData(data.userId, data.authToken, data.refreshToken, data.role)
-
-    // Перенаправьте на главную
+  await api.post('/api/auth/login?api-version=1.1',
+      {
+        email: form.value.email,
+        password: form.value.password,
+      }
+  ).then((response) => {
+    console.log('login', response.data)
+    authStore.setAuthData(response.data.userId, response.data.authToken, response.data.refreshToken, response.data.role)
     router.push('/')
-  } catch (error) {
+  }).catch(() => {
     globalError.value = error.message || 'Ошибка при входе. Проверьте учетные данные.'
-  } finally {
+  }).finally(() => {
     isLoading.value = false
-  }
+  })
 }
 </script>
 

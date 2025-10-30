@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import {defineStore} from 'pinia';
+import {ref, computed} from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
     // State
@@ -48,4 +48,15 @@ export const useAuthStore = defineStore('auth', () => {
         updateTokens,
         logout,
     };
+}, {
+    persist: {
+        enabled: true,
+        strategies: [
+            {
+                key: 'auth_data',
+                storage: localStorage,
+                paths: ['userId', 'authToken', 'refreshToken', 'userRole']
+            }
+        ]
+    }
 });

@@ -2,14 +2,15 @@
   <div class="flex flex-col min-h-screen">
     <!-- Основное содержимое с отступом снизу -->
     <main class="flex-1 pb-15 overflow-y-auto">
-      <RouterView />
+      <RouterView/>
     </main>
 
     <!-- Нижняя навигация -->
-    <BottomNavigation />
+    <BottomNavigation/>
   </div>
 </template>
 
 <script setup>
 import BottomNavigation from '@/components/BottomNavigation.vue'
+import {RouterView} from 'vue-router'
 </script>

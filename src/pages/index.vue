@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  requiresAuth: true
+</route>
+
 <template>
   <div class="min-h-screen bg-gray-50 py-8 px-4">
     <div class="max-w-4xl mx-auto">
@@ -357,9 +362,9 @@ import ProgressBar from 'primevue/progressbar'
 import Checkbox from 'primevue/checkbox'
 import CompleteAchievementsModal from '@/components/CompleteAchievementsModal.vue'
 import api from '@/api/client'
-
+import {useAuthStore} from "@/stores/auth.js";
 const router = useRouter()
-const route = useRoute()
+const authStore = useAuthStore()
 
 const student = ref(null)
 const allAchievements = ref([])
@@ -371,7 +376,7 @@ const isSubmitting = ref(false)
 const errorMessage = ref('')
 const loadedImages = ref({ avatar: true })
 
-const studentId = ref(route.params.id)
+const studentId = ref(authStore.userId)
 
 // Получение всех данных
 const loadStudentData = async () => {

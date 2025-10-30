@@ -1,6 +1,6 @@
 <template>
   <Dialog
-      v-model:visible="isVisible"
+      v-model:visible="model"
       header="Восстановление пароля"
       :modal="true"
       :draggable="false"
@@ -195,11 +195,9 @@ import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
 
-const modelValue = defineModel()
-
 const emit = defineEmits(['success'])
 
-const isVisible = ref(true)
+const model = defineModel(false)
 const currentStep = ref(1)
 const isLoading = ref(false)
 const errorMessage = ref('')
@@ -240,7 +238,7 @@ const resetForm = () => {
 }
 
 const closeDialog = () => {
-  isVisible.value = false
+  model.value = false
   resetForm()
 }
 

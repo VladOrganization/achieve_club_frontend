@@ -1,0 +1,360 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div class="max-w-2xl mx-auto">
+      <!-- Заголовок -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+          🎯 Система достижений
+        </h1>
+        <p class="text-gray-600">
+          Отсканируйте QR-код для выполнения достижения
+        </p>
+      </div>
+
+      <!-- Если данные не отсканированы -->
+      <div v-if="!scannedData" class="bg-white rounded-lg shadow-lg p-8">
+        <div class="mb-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            📱 Сканирование QR-кода
+          </h2>
+          <qrcode-stream
+              @detect="onDetect"
+              @error="onError"
+              class="w-full rounded-lg overflow-hidden border-2 border-blue-300"
+          />
+        </div>
+
+        <!-- Сообщение об ошибке -->
+        <Message
+            v-if="errorMessage"
+            severity="error"
+            :text="errorMessage"
+            class="w-full mb-4"
+        />
+
+        <!-- Результат сканирования -->
+        <Message
+            v-if="scanSuccess"
+            severity="success"
+            text="QR-код успешно отсканирован!"
+            class="w-full"
+        />
+      </div>
+
+      <!-- Если данные отсканированы -->
+      <div v-else class="bg-white rounded-lg shadow-lg p-8">
+        <!-- Информация о студенте -->
+        <div
+            class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50
+                 rounded-lg border border-blue-200"
+        >
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">👤 Студент</h2>
+          <p class="text-lg">
+            <span class="font-semibold">ID:</span>
+            <span class="text-blue-600">{{ scannedData.studentId }}</span>
+          </p>
+          <p class="text-gray-600 mt-1">
+            {{ studentInfo.name || 'Студент не найден' }}
+          </p>
+        </div>
+
+        <!-- Список достижений -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">
+            🏆 Достижения
+          </h2>
+
+          <div v-if="achievementsList.length > 0" class="space-y-3">
+            <div
+                v-for="achievement in achievementsList"
+                :key="achievement.id"
+                class="flex items-center justify-between p-4 bg-gradient-to-r
+                     from-amber-50 to-yellow-50 rounded-lg border
+                     border-amber-200 hover:shadow-md transition-shadow"
+            >
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-800">
+                  {{ achievement.name }}
+                </h3>
+                <p class="text-sm text-gray-600">
+                  {{ achievement.description }}
+                </p>
+              </div>
+              <div class="ml-4 text-right">
+                <span
+                    class="inline-block px-3 py-1 bg-yellow-200
+                         text-yellow-800 rounded-full font-bold text-sm"
+                >
+                  +{{ achievement.experience }} опыта
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div
+              v-else
+              class="p-4 text-center text-gray-500 bg-gray-50 rounded-lg"
+          >
+            Достижения не найдены
+          </div>
+        </div>
+
+        <!-- Суммарная информация -->
+        <div
+            class="mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50
+                 rounded-lg border-2 border-green-300"
+        >
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">
+            ✨ Суммарный опыт
+          </h3>
+          <p class="text-4xl font-bold text-green-600">
+            {{ totalExperience }}
+            <span class="text-lg text-gray-600">опыта</span>
+          </p>
+          <p class="text-gray-600 mt-2">
+            Количество достижений: {{ achievementsList.length }}
+          </p>
+        </div>
+
+        <!-- Кнопки действия -->
+        <div class="flex gap-4">
+          <Button
+              label="Выполнить"
+              icon="pi pi-check"
+              class="flex-1"
+              size="large"
+              @click="completeAchievements"
+              :loading="isLoading"
+              severity="success"
+              :pt="{
+              root: {
+                class: 'rounded-lg font-semibold uppercase tracking-wide ransition-all duration-200'
+              },
+              label: {
+                class: 'font-bold text-base'
+              },
+              icon: {
+                class: 'mr-2'
+              },
+              loadingIcon: {
+                class: 'mr-2 animate-spin'
+              }
+            }"
+          />
+
+          <Button
+              label="Отмена"
+              icon="pi pi-times"
+              class="flex-1"
+              size="large"
+              @click="resetScan"
+              severity="secondary"
+              :pt="{
+              root: {
+                class: 'rounded-lg font-semibold uppercase tracking-wide transition-all duration-200'
+              },
+              label: {
+                class: 'font-bold text-base'
+              },
+              icon: {
+                class: 'mr-2'
+              }
+            }"
+          />
+        </div>
+      </div>
+
+      <!-- Toast -->
+      <Toast
+          :pt="{
+          root: {
+            class: 'p-4'
+          },
+          message: {
+            class: 'ml-3'
+          },
+          summary: {
+            class: 'font-bold text-base'
+          },
+          detail: {
+            class: 'text-sm mt-1'
+          },
+          closeButton: {
+            class: 'hover:bg-opacity-20 rounded-full'
+          }
+        }"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import {ref, computed} from 'vue'
+import {QrcodeStream} from 'vue-qrcode-reader'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
+import Toast from 'primevue/toast'
+import {useToast} from 'primevue/usetoast'
+
+const toast = useToast()
+
+// Реактивные переменные
+const scannedData = ref(null)
+const errorMessage = ref('')
+const scanSuccess = ref(false)
+const isLoading = ref(false)
+
+// Примерная база данных студентов и достижений
+const studentsDb = {
+  '1': {id: '1', name: 'Иван Петров'},
+  '2': {id: '2', name: 'Мария Сидорова'},
+  '3': {id: '3', name: 'Александр Иванов'}
+}
+
+const achievementsDb = {
+  '1': {
+    id: '1',
+    name: 'Первый шаг',
+    description: 'Завершить первый курс',
+    experience: 100
+  },
+  '2': {
+    id: '2',
+    name: 'Отличник',
+    description: 'Получить оценку 5 по тесту',
+    experience: 250
+  },
+  '3': {
+    id: '3',
+    name: 'Чемпион',
+    description: 'Выиграть олимпиаду',
+    experience: 500
+  },
+  '4': {
+    id: '4',
+    name: 'Помощник',
+    description: 'Помочь однокурсникам',
+    experience: 150
+  },
+  '5': {
+    id: '5',
+    name: 'Лидер',
+    description: 'Возглавить проект',
+    experience: 300
+  }
+}
+
+// Информация о студенте
+const studentInfo = computed(() => {
+  if (!scannedData.value) return {}
+  return (
+      studentsDb[scannedData.value.studentId] || {
+        name: 'Неизвестный студент'
+      }
+  )
+})
+
+// Список достижений
+const achievementsList = computed(() => {
+  if (!scannedData.value || !scannedData.value.achievementIds) return []
+  return scannedData.value.achievementIds
+      .map(id => achievementsDb[id])
+      .filter(Boolean)
+})
+
+// Суммарный опыт
+const totalExperience = computed(() => {
+  return achievementsList.value.reduce(
+      (sum, achievement) => sum + achievement.experience,
+      0
+  )
+})
+
+// Функция для обработки сканирования
+const onDetect = detectedCodes => {
+  if (!detectedCodes || detectedCodes.length === 0) return
+
+  const decodedText = detectedCodes[0]?.rawValue
+
+  if (!decodedText) return
+
+  console.log("scan", decodedText)
+
+  try {
+    // Парсируем QR-код: studentId:achievement1Id:achievement2Id:...
+    const parts = decodedText.split(':')
+    if (parts.length < 2) {
+      throw new Error(
+          'Неверный формат QR-кода. Ожидается: studentId:achievementId1:achievementId2:...'
+      )
+    }
+
+    const studentId = parts[0]
+    const achievementIds = parts.slice(1)
+
+    // Проверяем, что студент существует
+    if (!studentsDb[studentId]) {
+      throw new Error('Студент с таким ID не найден')
+    }
+
+    scannedData.value = {
+      studentId,
+      achievementIds
+    }
+
+    scanSuccess.value = true
+    errorMessage.value = ''
+  } catch (error) {
+    errorMessage.value = error.message
+    scanSuccess.value = false
+  }
+}
+
+// Функция для обработки ошибок
+const onError = error => {
+  console.error('Ошибка сканирования:', error)
+  errorMessage.value = `Ошибка: ${error.name || error.message}`
+}
+
+// Выполнение достижений
+const completeAchievements = async () => {
+  if (!scannedData.value) return
+
+  isLoading.value = true
+
+  try {
+    // Имитируем сохранение данных на сервер
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    toast.add({
+      severity: 'success',
+      summary: 'Успешно!',
+      detail: `Достижения для студента ${scannedData.value.studentId}
+               выполнены. Опыт: ${totalExperience.value}`,
+      life: 3000
+    })
+
+    resetScan()
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: 'Не удалось выполнить достижения',
+      life: 3000
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Сброс сканирования
+const resetScan = () => {
+  scannedData.value = null
+  errorMessage.value = ''
+  scanSuccess.value = false
+}
+</script>
+
+<style scoped>
+/* Используем только Tailwind классы и Pass-Through API */
+</style>
