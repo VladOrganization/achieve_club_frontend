@@ -219,15 +219,6 @@ meta:
                     <!-- Checkbox и логотип -->
                     <div class="flex items-start justify-between mb-4">
                       <div class="flex items-start gap-3">
-                        <Checkbox
-                            v-model="selectedAchievements"
-                            :input-value="achievement.id"
-                            class="mt-1"
-                            :pt="{
-                            root: { class: 'w-5 h-5' }
-                          }"
-                            @change="toggleAchievementSelection(achievement.id)"
-                        />
                         <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center flex-shrink-0 border-2 border-gray-300">
                           <img
                               v-if="loadedImages[achievement.id]"

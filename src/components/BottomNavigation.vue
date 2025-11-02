@@ -33,9 +33,9 @@ const navItems = ref([
 ])
 
 onMounted(() => {
-  const role = authStore.userRole
+  const role = authStore.roleName
 
-  if (role === 2 || role === 3) {
+  if (role === 'admin' || role === 'supervisor') {
     navItems.value = [
       ...navItems.value,
       {name: 'scanner', path: '/scanner', label: 'Сканер', icon: 'pi pi-qrcode'},

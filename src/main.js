@@ -30,7 +30,7 @@ router.beforeEach((to, from, next) => {
     const containsRolesPermissions = !!to.meta.requiresRoles
 
     if (containsRolesPermissions) {
-        const allowAccess = to.meta.requiresRoles.includes(authStore.userRole)
+        const allowAccess = to.meta.requiresRoles.includes(authStore.roleName)
 
         if (!allowAccess) {
             next('/login')

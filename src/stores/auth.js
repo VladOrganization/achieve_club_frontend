@@ -10,7 +10,14 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Getters
     const isAuthenticated = computed(() => !!authToken.value);
-    const isAdmin = computed(() => userRole.value === 'admin');
+
+    const roleMap = new Map([
+        [1, 'student'],
+        [2, 'admin'],
+        [3, 'supervisor']
+    ]);
+
+    const roleName = computed(() => roleMap.get(userRole.value));
 
     // Actions
     const setAuthData = (
@@ -43,7 +50,7 @@ export const useAuthStore = defineStore('auth', () => {
         refreshToken,
         userRole,
         isAuthenticated,
-        isAdmin,
+        roleName,
         setAuthData,
         updateTokens,
         logout,

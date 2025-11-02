@@ -1,22 +1,18 @@
-<template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-    <div class="max-w-2xl mx-auto">
-      <!-- Заголовок -->
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">
-          🎯 Система достижений
-        </h1>
-        <p class="text-gray-600">
-          Отсканируйте QR-код для выполнения достижения
-        </p>
-      </div>
+<route lang="yaml">
+meta:
+requiresAuth: true
+requiresRoles: ['admin', 'supervisor']
+</route>
 
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2">
+    <div class="max-w-2xl mx-auto">
       <!-- Если данные не отсканированы -->
-      <div v-if="!scannedData" class="bg-white rounded-lg shadow-lg p-8">
-        <div class="mb-6">
-          <h2 class="text-xl font-semibold text-gray-800 mb-4">
-            📱 Сканирование QR-кода
-          </h2>
+      <div v-if="!scannedData" class="bg-white rounded-lg shadow-lg p-2">
+        <div class="mb-2">
+          <p class="text-gray-600">
+            📱 Отсканируйте QR-код для выполнения достижения
+          </p>
           <qrcode-stream
               @detect="onDetect"
               @error="onError"
@@ -28,34 +24,27 @@
         <Message
             v-if="errorMessage"
             severity="error"
-            :text="errorMessage"
-            class="w-full mb-4"
-        />
+            class="w-full">
+          {{ errorMessage }}
+        </Message>
 
         <!-- Результат сканирования -->
         <Message
-            v-if="scanSuccess"
+            v-if="detectedCodes"
             severity="success"
-            text="QR-код успешно отсканирован!"
-            class="w-full"
-        />
+            class="w-full">
+          {{ detectedCodes[0].rawValue }}
+        </Message>
       </div>
 
       <!-- Если данные отсканированы -->
-      <div v-else class="bg-white rounded-lg shadow-lg p-8">
+      <div v-else class="bg-white rounded-lg shadow-lg p-2">
         <!-- Информация о студенте -->
         <div
             class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50
                  rounded-lg border border-blue-200"
         >
-          <h2 class="text-2xl font-bold text-gray-800 mb-2">👤 Студент</h2>
-          <p class="text-lg">
-            <span class="font-semibold">ID:</span>
-            <span class="text-blue-600">{{ scannedData.studentId }}</span>
-          </p>
-          <p class="text-gray-600 mt-1">
-            {{ studentInfo.name || 'Студент не найден' }}
-          </p>
+          <h2 class="text-2xl font-bold text-gray-800">👤 {{ studentInfo }}</h2>
         </div>
 
         <!-- Список достижений -->
@@ -68,10 +57,11 @@
             <div
                 v-for="achievement in achievementsList"
                 :key="achievement.id"
-                class="flex items-center justify-between p-4 bg-gradient-to-r
+                class="flex items-center justify-between p-2 bg-gradient-to-r
                      from-amber-50 to-yellow-50 rounded-lg border
                      border-amber-200 hover:shadow-md transition-shadow"
             >
+              <Button @click="removeAchievement(achievement.id)" icon="pi pi-trash" size="small" class="mr-2" aria-label="Save" severity="danger"/>
               <div class="flex-1">
                 <h3 class="font-semibold text-gray-800">
                   {{ achievement.name }}
@@ -83,8 +73,7 @@
               <div class="ml-4 text-right">
                 <span
                     class="inline-block px-3 py-1 bg-yellow-200
-                         text-yellow-800 rounded-full font-bold text-sm"
-                >
+                         text-yellow-800 rounded-full font-bold text-sm">
                   +{{ achievement.experience }} опыта
                 </span>
               </div>
@@ -107,13 +96,16 @@
           <h3 class="text-lg font-semibold text-gray-800 mb-2">
             ✨ Суммарный опыт
           </h3>
+          <div class="flex gap-2">
           <p class="text-4xl font-bold text-green-600">
             {{ totalExperience }}
             <span class="text-lg text-gray-600">опыта</span>
           </p>
-          <p class="text-gray-600 mt-2">
-            Количество достижений: {{ achievementsList.length }}
+          <p class="text-4xl font-bold text-blue-600">
+            {{ achievementsList.length }}
+            <span class="text-lg text-gray-600">{{ countText }}</span>
           </p>
+          </div>
         </div>
 
         <!-- Кнопки действия -->
@@ -126,20 +118,6 @@
               @click="completeAchievements"
               :loading="isLoading"
               severity="success"
-              :pt="{
-              root: {
-                class: 'rounded-lg font-semibold uppercase tracking-wide ransition-all duration-200'
-              },
-              label: {
-                class: 'font-bold text-base'
-              },
-              icon: {
-                class: 'mr-2'
-              },
-              loadingIcon: {
-                class: 'mr-2 animate-spin'
-              }
-            }"
           />
 
           <Button
@@ -149,17 +127,6 @@
               size="large"
               @click="resetScan"
               severity="secondary"
-              :pt="{
-              root: {
-                class: 'rounded-lg font-semibold uppercase tracking-wide transition-all duration-200'
-              },
-              label: {
-                class: 'font-bold text-base'
-              },
-              icon: {
-                class: 'mr-2'
-              }
-            }"
           />
         </div>
       </div>
@@ -195,6 +162,7 @@ import Button from 'primevue/button'
 import Message from 'primevue/message'
 import Toast from 'primevue/toast'
 import {useToast} from 'primevue/usetoast'
+import api from '@/api/client'
 
 const toast = useToast()
 
@@ -203,13 +171,7 @@ const scannedData = ref(null)
 const errorMessage = ref('')
 const scanSuccess = ref(false)
 const isLoading = ref(false)
-
-// Примерная база данных студентов и достижений
-const studentsDb = {
-  '1': {id: '1', name: 'Иван Петров'},
-  '2': {id: '2', name: 'Мария Сидорова'},
-  '3': {id: '3', name: 'Александр Иванов'}
-}
+const detectedCodes = ref()
 
 const achievementsDb = {
   '1': {
@@ -245,14 +207,15 @@ const achievementsDb = {
 }
 
 // Информация о студенте
-const studentInfo = computed(() => {
-  if (!scannedData.value) return {}
-  return (
-      studentsDb[scannedData.value.studentId] || {
-        name: 'Неизвестный студент'
-      }
+const studentInfo = ref(null)
+
+const removeAchievement = (achievementId) => {
+  if (!scannedData.value) return
+
+  scannedData.value.achievementIds = scannedData.value.achievementIds.filter(
+      id => id !== achievementId
   )
-})
+}
 
 // Список достижений
 const achievementsList = computed(() => {
@@ -270,6 +233,15 @@ const totalExperience = computed(() => {
   )
 })
 
+const countText = computed(() => {
+  const count = achievementsList.value.length
+
+  if (count < 1) return ''
+  else if (count === 1) return 'достижение'
+  else if (count <= 4) return 'достижения'
+  else return 'достижений'
+})
+
 // Функция для обработки сканирования
 const onDetect = detectedCodes => {
   if (!detectedCodes || detectedCodes.length === 0) return
@@ -285,22 +257,22 @@ const onDetect = detectedCodes => {
     const parts = decodedText.split(':')
     if (parts.length < 2) {
       throw new Error(
-          'Неверный формат QR-кода. Ожидается: studentId:achievementId1:achievementId2:...'
+          'Неверный формат QR-кода. Ожидается: студент:ачивка-1:...:ачивка-N'
       )
     }
 
     const studentId = parts[0]
     const achievementIds = parts.slice(1)
 
-    // Проверяем, что студент существует
-    if (!studentsDb[studentId]) {
-      throw new Error('Студент с таким ID не найден')
-    }
-
     scannedData.value = {
       studentId,
       achievementIds
     }
+
+    api.get('/api/users/'+scannedData.value.studentId).then((response) => {
+      console.log(response)
+      studentInfo.value = `${response.data.firstName} ${response.data.lastName}`
+    })
 
     scanSuccess.value = true
     errorMessage.value = ''

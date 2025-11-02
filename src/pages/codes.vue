@@ -1,3 +1,9 @@
+<route lang="yaml">
+meta:
+  requiresAuth: true
+  requiresRoles: ['admin', 'supervisor']
+</route>
+
 <template>
   <div class="p-6">
     <div class="mb-6">
