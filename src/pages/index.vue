@@ -477,14 +477,6 @@ const completeSelectedAchievements = async () => {
   errorMessage.value = ''
 
   try {
-    // API запрос для выполнения достижений
-    // Замените на реальный endpoint вашего API
-    await api.post(
-        `/api/CompletedAchievements`,
-        {
-          achievementIds: selectedAchievements.value
-        }
-    )
 
     // Добавить выбранные достижения в завершенные
     completedAchievementIds.value = [

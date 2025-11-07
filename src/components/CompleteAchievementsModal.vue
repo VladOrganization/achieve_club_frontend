@@ -163,10 +163,7 @@ const qrCodeData = computed(() => {
 
   const data = {
     studentId: props.studentId,
-    achievementIds: props.selectedAchievements,
-    timestamp: Math.floor(Date.now() / 1000),
-    totalXP: totalXP.value,
-    count: props.selectedAchievements.length,
+    achievementIds: props.selectedAchievements
   }
 
   // Кодируем в JSON и преобразуем в строку для QR

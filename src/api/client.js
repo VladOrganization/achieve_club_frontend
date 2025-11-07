@@ -42,8 +42,9 @@ apiClient.interceptors.response.use(
     response => response,
     error => {
         const {response, config} = error
-        const authStore = useAuthStore()
+
         const router = useRouter()
+        const authStore = useAuthStore()
 
         // Если статус 401
         if (response?.status === 401 && authStore.refreshToken) {
