@@ -1,6 +1,9 @@
 # Build stage
 FROM node:20-alpine AS builder
 
+ARG VITE_API_URL=https://byteschool.online
+ARG VITE_API_PORT=5001
+
 WORKDIR /app
 
 COPY package*.json ./
