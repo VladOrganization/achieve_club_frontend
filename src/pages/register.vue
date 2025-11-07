@@ -13,6 +13,7 @@
             v-for="step in 3"
             :key="step"
             class="flex items-center"
+            :class="[step == 3 ? 'w-12' : 'w-full']"
         >
           <div
               :class="[
@@ -27,7 +28,7 @@
           <div
               v-if="step < 3"
               :class="[
-              'w-12 h-1 mx-2',
+              'flex-1 h-1 mx-2',
               currentStep > step ? 'bg-indigo-600' : 'bg-gray-300',
             ]"
           />
@@ -85,10 +86,10 @@
         <Message
             v-if="errorMessage"
             severity="error"
-            :text="errorMessage"
             class="mt-4"
-            @close="errorMessage = ''"
-        />
+            @close="errorMessage = ''">
+          {{ errorMessage }}
+        </Message>
 
         <div class="flex gap-3 mt-6">
           <Button
@@ -165,10 +166,10 @@
         <Message
             v-if="errorMessage"
             severity="error"
-            :text="errorMessage"
             class="mt-4"
-            @close="errorMessage = ''"
-        />
+            @close="errorMessage = ''">
+          {{ errorMessage }}
+        </Message>
 
         <div class="flex gap-3 mt-6">
           <Button
@@ -187,12 +188,12 @@
 
       <!-- Этап 3: Подтверждение email -->
       <form v-if="currentStep === 3" @submit.prevent="completeRegistration" class="space-y-4">
-        <div class="bg-blue-50 p-4 rounded-lg mb-4">
+        <div class="bg-blue-50 p-4 rounded-lg mb-4 text-center">
           <p class="text-sm text-gray-700">
             Мы отправили код подтверждения на:
-            <br />
-            <span class="font-semibold text-indigo-600">{{ form.email }}</span>
+            <br/>
           </p>
+          <p class="font-semibold text-indigo-600">{{ form.email }}</p>
         </div>
 
         <div>
@@ -202,7 +203,7 @@
           <InputText
               id="verificationCode"
               v-model="form.verificationCode"
-              placeholder="000000"
+              placeholder="0000"
               class="w-full text-center text-2xl tracking-widest"
               maxlength="6"
               @keyup.enter="completeRegistration"
@@ -231,17 +232,17 @@
         <Message
             v-if="successMessage"
             severity="success"
-            :text="successMessage"
-            class="mt-4"
-        />
+            class="mt-4">
+          {{ successMessage }}
+        </Message>
 
         <Message
             v-if="errorMessage"
             severity="error"
-            :text="errorMessage"
             class="mt-4"
-            @close="errorMessage = ''"
-        />
+            @close="errorMessage = ''">
+          {{ errorMessage }}
+        </Message>
 
         <div class="flex gap-3 mt-6">
           <Button
@@ -274,15 +275,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import {ref} from 'vue'
+import {useRouter} from 'vue-router'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
-import Checkbox from 'primevue/checkbox'
 import Message from 'primevue/message'
+import apiClient from "@/api/client.js";
+import api from "@/api/client.js";
+import {useAuthStore} from "@/stores/auth.js";
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const currentStep = ref(1)
 const isLoading = ref(false)
@@ -389,8 +393,8 @@ const validateStep3 = () => {
     return false
   }
 
-  if (form.value.verificationCode.length !== 6) {
-    errors.value.verificationCode = 'Код должен содержать 6 символов'
+  if (form.value.verificationCode.length !== 4) {
+    errors.value.verificationCode = 'Код должен содержать 4 символа'
     return false
   }
 
@@ -428,7 +432,11 @@ const nextStep = async () => {
 
     try {
       // Отправка данных регистрации и отправка кода
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      await apiClient.post('api/email/proof_email', `"${form.value.email}"`,
+          {
+            headers: {'Content-Type': 'application/patch+json'}
+          }
+      )
 
       // const response = await fetch('/api/register-init', {
       //   method: 'POST',
@@ -444,7 +452,8 @@ const nextStep = async () => {
       successMessage.value = 'Код подтверждения отправлен на вашу почту'
       currentStep.value = 3
       startResendCountdown()
-    } catch (error) {
+    } catch
+        (error) {
       errorMessage.value = error.message || 'Ошибка при отправке кода'
     } finally {
       isLoading.value = false
@@ -475,7 +484,7 @@ const resendCode = async () => {
   errorMessage.value = ''
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await apiClient.post('/email/proof_email', form.value.email)
 
     // const response = await fetch('/api/resend-code', {
     //   method: 'POST',
@@ -499,31 +508,22 @@ const completeRegistration = async () => {
 
   isLoading.value = true
 
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // const response = await fetch('/api/verify-registration', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     email: form.value.email,
-    //     verificationCode: form.value.verificationCode,
-    //   }),
-    // })
-
-    // const data = await response.json()
-    // localStorage.setItem('token', data.token)
-
-    successMessage.value = 'Регистрация успешна! Перенаправление...'
-
-    setTimeout(() => {
-      router.push('/login')
-    }, 1500)
-  } catch (error) {
+  await apiClient.post('/api/auth/registration?api-version=1.1', {
+    firstName: form.value.firstName,
+    lastName: form.value.lastName,
+    emailAddress: form.value.email,
+    password: form.value.password,
+    proofCode: form.value.verificationCode,
+    avatarURL: "default-avatar.webp"
+  }).then((response) => {
+    console.log('login', response.data)
+    authStore.setAuthData(response.data.userId, response.data.authToken, response.data.refreshToken, response.data.role)
+    router.push('/')
+  }).catch(() => {
     errorMessage.value = error.message || 'Ошибка при подтверждении кода'
-  } finally {
+  }).finally(() => {
     isLoading.value = false
-  }
+  })
 }
 
 const goToLogin = () => {

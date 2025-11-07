@@ -47,7 +47,6 @@ requiresAuth: true
                 <h1 class="text-3xl font-bold text-gray-900">
                   {{ student.firstName }} {{ student.lastName }}
                 </h1>
-                <p class="text-gray-600 mt-1">ID: {{ student.id }}</p>
               </div>
 
               <!-- Кнопка назад -->

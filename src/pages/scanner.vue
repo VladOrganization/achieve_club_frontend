@@ -64,7 +64,7 @@ requiresRoles: ['admin', 'supervisor']
               <Button @click="removeAchievement(achievement.id)" icon="pi pi-trash" size="small" class="mr-2" aria-label="Save" severity="danger"/>
               <div class="flex-1">
                 <h3 class="font-semibold text-gray-800">
-                  {{ achievement.name }}
+                  {{ achievement.title }}
                 </h3>
                 <p class="text-sm text-gray-600">
                   {{ achievement.description }}
@@ -74,7 +74,7 @@ requiresRoles: ['admin', 'supervisor']
                 <span
                     class="inline-block px-3 py-1 bg-yellow-200
                          text-yellow-800 rounded-full font-bold text-sm">
-                  +{{ achievement.experience }} опыта
+                  +{{ achievement.xp }} опыта
                 </span>
               </div>
             </div>
@@ -156,7 +156,7 @@ requiresRoles: ['admin', 'supervisor']
 </template>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, onMounted} from 'vue'
 import {QrcodeStream} from 'vue-qrcode-reader'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
@@ -173,41 +173,17 @@ const scanSuccess = ref(false)
 const isLoading = ref(false)
 const detectedCodes = ref()
 
-const achievementsDb = {
-  '1': {
-    id: '1',
-    name: 'Первый шаг',
-    description: 'Завершить первый курс',
-    experience: 100
-  },
-  '2': {
-    id: '2',
-    name: 'Отличник',
-    description: 'Получить оценку 5 по тесту',
-    experience: 250
-  },
-  '3': {
-    id: '3',
-    name: 'Чемпион',
-    description: 'Выиграть олимпиаду',
-    experience: 500
-  },
-  '4': {
-    id: '4',
-    name: 'Помощник',
-    description: 'Помочь однокурсникам',
-    experience: 150
-  },
-  '5': {
-    id: '5',
-    name: 'Лидер',
-    description: 'Возглавить проект',
-    experience: 300
-  }
-}
+const achievementsDb = ref([])
 
 // Информация о студенте
 const studentInfo = ref(null)
+
+onMounted(async () => {
+  const achievementsResponse = await api.get(
+      '/api/achievements'
+  )
+  achievementsDb.value = achievementsResponse.data || []
+})
 
 const removeAchievement = (achievementId) => {
   if (!scannedData.value) return
@@ -221,14 +197,14 @@ const removeAchievement = (achievementId) => {
 const achievementsList = computed(() => {
   if (!scannedData.value || !scannedData.value.achievementIds) return []
   return scannedData.value.achievementIds
-      .map(id => achievementsDb[id])
+      .map(id => achievementsDb.value[id])
       .filter(Boolean)
 })
 
 // Суммарный опыт
 const totalExperience = computed(() => {
   return achievementsList.value.reduce(
-      (sum, achievement) => sum + achievement.experience,
+      (sum, achievement) => sum + achievement.xp,
       0
   )
 })
@@ -285,7 +261,7 @@ const onDetect = detectedCodes => {
 // Функция для обработки ошибок
 const onError = error => {
   console.error('Ошибка сканирования:', error)
-  errorMessage.value = `Ошибка: ${error.name || error.message}`
+  errorMessage.value = `Ошибка: ${error.title || error.message}`
 }
 
 // Выполнение достижений
@@ -295,13 +271,15 @@ const completeAchievements = async () => {
   isLoading.value = true
 
   try {
-    // Имитируем сохранение данных на сервер
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    await api.post('api/completedachievements', {
+      "userId": scannedData.value.studentId,
+      "achievementIds": scannedData.value.achievementIds
+    })
 
     toast.add({
       severity: 'success',
       summary: 'Успешно!',
-      detail: `Достижения для студента ${scannedData.value.studentId}
+      detail: `Достижения для студента ${studentInfo.value}
                выполнены. Опыт: ${totalExperience.value}`,
       life: 3000
     })

@@ -7,14 +7,14 @@
       class="w-full max-w-md"
       @hide="onHide"
       :pt="{
-      header: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0' },
+      header: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0 rounded-xl' },
       title: { class: 'text-white font-bold' }
     }"
   >
     <!-- Содержимое модального окна -->
-    <div class="space-y-6">
+    <div class="space-y-3">
       <!-- Инструкция -->
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
         <p class="text-sm text-blue-900">
           🎯 Отсканируйте QR-код для подтверждения выполнения достижений
         </p>
@@ -51,12 +51,12 @@
       </div>
 
       <!-- QR Код -->
-      <div class="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
+      <div class="bg-gray-50 rounded-lg p-2 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
         <div v-if="qrCodeData" class="bg-white p-4 rounded-lg shadow-md">
           <QRCode
+              @click="showDebugInfo = !showDebugInfo"
               :value="qrCodeData"
               :options="{
-              width: 200,
               margin: 2,
               color: {
                 dark: '#000000',
@@ -65,13 +65,10 @@
             }"
           />
         </div>
-        <p class="text-center text-gray-600 text-xs mt-4">
-          Отсканируйте этот код телефоном или веб-камерой
-        </p>
       </div>
 
       <!-- Информация для отладки (опционально) -->
-      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200" v-if="showDebugInfo">
         <p class="text-xs text-gray-600 mb-2 font-medium">Информация:</p>
         <p class="text-xs text-gray-500 break-all font-mono">
           ID студента: {{ studentId }}
@@ -132,6 +129,8 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
 
 const isVisible = ref(false)
+
+const showDebugInfo = ref(false)
 
 // Синхронизация видимости с родителем
 watch(

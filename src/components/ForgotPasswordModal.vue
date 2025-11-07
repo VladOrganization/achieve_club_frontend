@@ -33,23 +33,23 @@
       <Message
           v-if="successMessage"
           severity="success"
-          :text="successMessage"
-          class="mt-4"
-      />
+          class="mt-4">
+        {{ successMessage }}
+      </Message>
 
       <Message
           v-if="errorMessage"
           severity="error"
-          :text="errorMessage"
           class="mt-4"
-          @close="errorMessage = ''"
-      />
+          @close="errorMessage = ''">
+        {{ errorMessage }}
+      </Message>
     </div>
 
     <!-- Шаг 2: Ввод кода подтверждения -->
     <div v-if="currentStep === 2" class="space-y-4">
       <p class="text-gray-600 text-sm">
-        Проверьте вашу почту. Мы отправили код подтверждения
+        Мы отправили код подтверждения. Попросите его у вашего тренера
       </p>
 
       <div>
@@ -59,7 +59,7 @@
         <InputText
             id="code"
             v-model="form.code"
-            placeholder="000000"
+            placeholder="0000"
             class="w-full"
             maxlength="6"
             @keyup.enter="verifyCode"
@@ -88,10 +88,10 @@
       <Message
           v-if="errorMessage"
           severity="error"
-          :text="errorMessage"
           class="mt-4"
-          @close="errorMessage = ''"
-      />
+          @close="errorMessage = ''">
+        {{ errorMessage }}
+      </Message>
     </div>
 
     <!-- Шаг 3: Установка нового пароля -->
@@ -153,10 +153,10 @@
       <Message
           v-if="errorMessage"
           severity="error"
-          :text="errorMessage"
           class="mt-4"
-          @close="errorMessage = ''"
-      />
+          @close="errorMessage = ''">
+        {{ errorMessage }}
+      </Message>
     </div>
 
     <template #footer>
@@ -188,12 +188,13 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import {ref, watch} from 'vue'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import apiClient from "@/api/client.js";
 
 const emit = defineEmits(['success'])
 
@@ -267,25 +268,28 @@ const submitEmail = async () => {
 
   isLoading.value = true
 
-  try {
-    // Замените на реальный API запрос
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // API вызов
-    // const response = await fetch('/api/forgot-password', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ email: form.value.email }),
-    // })
-
-    successMessage.value = 'Код отправлен на вашу почту'
+  await apiClient.post('api/email/change_password', `"${form.value.email}"`,
+      {
+        headers: {'Content-Type': 'application/patch+json'}
+      }
+  ).then((res) => {
+    successMessage.value = 'Код отправлен. Попросите его у вашего тренера'
     currentStep.value = 2
     startResendCountdown()
-  } catch (error) {
-    errorMessage.value = error.message || 'Ошибка при отправке кода'
-  } finally {
+  }).catch((error) => {
+    if (error.response.data == 'email') {
+      errorMessage.value = 'Такой email не зарегистрирован'
+    } else if (error.response.data == 'timeout') {
+      successMessage.value = 'Код отправлен. Попросите его у вашего тренера'
+      currentStep.value = 2
+      startResendCountdown()
+    } else {
+      errorMessage.value = 'Ошибка при отправке кода'
+    }
+  }).finally(() => {
     isLoading.value = false
-  }
+  })
+
 }
 
 // Шаг 2: Проверка кода
@@ -297,8 +301,8 @@ const validateCode = () => {
     return false
   }
 
-  if (form.value.code.length !== 6) {
-    errors.value.code = 'Код должен содержать 6 символов'
+  if (form.value.code.length !== 4) {
+    errors.value.code = 'Код должен содержать 4 символа'
     return false
   }
 
@@ -312,25 +316,19 @@ const verifyCode = async () => {
 
   isLoading.value = true
 
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // API вызов
-    // const response = await fetch('/api/verify-code', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     email: form.value.email,
-    //     code: form.value.code,
-    //   }),
-    // })
-
+  await apiClient.post('api/email/validate_code', {
+        emailAddress: form.value.email,
+        proofCode: Number(form.value.code)
+      }
+  ).then((res) => {
+    successMessage.value = 'Код проверен'
     currentStep.value = 3
-  } catch (error) {
-    errorMessage.value = error.message || 'Неверный код'
-  } finally {
+  }).catch((error) => {
+    errorMessage.value = 'Введен неверный код'
+  }).finally(() => {
     isLoading.value = false
-  }
+  })
+
 }
 
 const startResendCountdown = () => {
@@ -347,15 +345,25 @@ const resendCode = async () => {
   isLoading.value = true
   errorMessage.value = ''
 
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+  await apiClient.post('api/email/change_password', `"${form.value.email}"`,
+      {
+        headers: {'Content-Type': 'application/patch+json'}
+      }
+  ).then((res) => {
     successMessage.value = 'Код повторно отправлен'
     startResendCountdown()
-  } catch (error) {
-    errorMessage.value = 'Ошибка при повторной отправке'
-  } finally {
+  }).catch((error) => {
+    if (error.response.data == 'email') {
+      errorMessage.value = 'Такой email не зарегистрирован'
+    } else if (error.response.data == 'timeout') {
+      successMessage.value = 'Код повторно отправлен'
+      startResendCountdown()
+    } else {
+      errorMessage.value = 'Ошибка при отправке кода'
+    }
+  }).finally(() => {
     isLoading.value = false
-  }
+  })
 }
 
 // Шаг 3: Установка нового пароля
@@ -398,27 +406,20 @@ const resetPassword = async () => {
 
   isLoading.value = true
 
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // API вызов
-    // const response = await fetch('/api/reset-password', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     email: form.value.email,
-    //     code: form.value.code,
-    //     newPassword: form.value.newPassword,
-    //   }),
-    // })
-
+  await apiClient.patch('api/auth/change_password', {
+        emailAddress: form.value.email,
+        proofCode: Number(form.value.code),
+        password: form.value.newPassword
+      }
+  ).then((res) => {
+    successMessage.value = 'Пароль успешно изменен'
     emit('success')
     closeDialog()
-  } catch (error) {
-    errorMessage.value = error.message || 'Ошибка при установке пароля'
-  } finally {
+  }).catch((error) => {
+    errorMessage.value = 'Ошибка при изменении пароля, попробуйте снова'
+  }).finally(() => {
     isLoading.value = false
-  }
+  })
 }
 </script>
 

@@ -28,8 +28,8 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 const navItems = ref([
-  {name: 'home', path: '/', label: 'Главная', icon: 'pi pi-home'},
-  {name: 'students', path: '/students', label: 'Топ', icon: 'pi pi-users'}
+  {title: 'home', path: '/', label: 'Главная', icon: 'pi pi-home'},
+  {title: 'students', path: '/students', label: 'Топ', icon: 'pi pi-users'}
 ])
 
 onMounted(() => {
@@ -38,8 +38,8 @@ onMounted(() => {
   if (role === 'admin' || role === 'supervisor') {
     navItems.value = [
       ...navItems.value,
-      {name: 'scanner', path: '/scanner', label: 'Сканер', icon: 'pi pi-qrcode'},
-      {name: 'codes', path: '/codes', label: 'Коды', icon: 'pi pi-key'}
+      {title: 'scanner', path: '/scanner', label: 'Сканер', icon: 'pi pi-qrcode'},
+      {title: 'codes', path: '/codes', label: 'Коды', icon: 'pi pi-key'}
     ]
   }
 })

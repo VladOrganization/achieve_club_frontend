@@ -47,15 +47,14 @@ meta:
                 <h1 class="text-3xl font-bold text-gray-900">
                   {{ student.firstName }} {{ student.lastName }}
                 </h1>
-                <p class="text-gray-600 mt-1">ID: {{ student.id }}</p>
               </div>
 
               <!-- Кнопка назад -->
               <Button
-                  icon="pi pi-arrow-left"
-                  label="Назад"
+                  icon="pi pi-sign-out"
+                  label="Выйти"
                   severity="secondary"
-                  @click="goBack"
+                  @click="signOut"
                   :pt="{
                   root: { class: 'px-4 py-2 rounded-lg' }
                 }"
@@ -367,8 +366,6 @@ const isSubmitting = ref(false)
 const errorMessage = ref('')
 const loadedImages = ref({ avatar: true })
 
-const studentId = ref(authStore.userId)
-
 // Получение всех данных
 const loadStudentData = async () => {
   isLoading.value = true
@@ -377,7 +374,7 @@ const loadStudentData = async () => {
   try {
     // 1. Получить информацию о студенте
     const studentResponse = await api.get(
-        `/api/users/${studentId.value}`
+        `/api/users/current`
     )
     student.value = studentResponse.data
 
@@ -389,7 +386,7 @@ const loadStudentData = async () => {
 
     // 3. Получить выполненные достижения студента
     const completedResponse = await api.get(
-        `/api/CompletedAchievements/${studentId.value}`
+        `/api/CompletedAchievements/current`
     )
     // Сохранить ID выполненных достижений
     completedAchievementIds.value = (completedResponse.data || []).map(
@@ -483,7 +480,7 @@ const completeSelectedAchievements = async () => {
     // API запрос для выполнения достижений
     // Замените на реальный endpoint вашего API
     await api.post(
-        `/api/CompletedAchievements/${studentId.value}`,
+        `/api/CompletedAchievements`,
         {
           achievementIds: selectedAchievements.value
         }
@@ -512,9 +509,10 @@ const completeSelectedAchievements = async () => {
   }
 }
 
-// Возвращение назад
-const goBack = () => {
-  router.back()
+// Выйти из профиля
+const signOut = () => {
+  authStore.logout()
+  router.push('/login')
 }
 
 onMounted(async () => {

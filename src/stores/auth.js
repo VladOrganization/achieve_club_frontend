@@ -9,7 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
     const userRole = ref(null);
 
     // Getters
-    const isAuthenticated = computed(() => !!authToken.value);
+    const isAuthenticated = computed(() => !!refreshToken.value);
 
     const roleMap = new Map([
         [1, 'student'],
@@ -57,13 +57,10 @@ export const useAuthStore = defineStore('auth', () => {
     };
 }, {
     persist: {
+        key: 'auth-data',
         enabled: true,
-        strategies: [
-            {
-                key: 'auth_data',
-                storage: localStorage,
-                paths: ['userId', 'authToken', 'refreshToken', 'userRole']
-            }
-        ]
+        storage: localStorage,
+        pick: ['userId', 'refreshToken', 'userRole'],
+        omit: ['authToken']
     }
 });
