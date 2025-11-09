@@ -1,14 +1,13 @@
 import axios from 'axios'
 import {API_CONFIG} from '@/api/config'
 import {useAuthStore} from '@/stores/auth'
-import {useRouter} from "vue-router"
+import router from '@/router'
 
 const apiClient = axios.create({
     baseURL: `${API_CONFIG.baseURL}:${API_CONFIG.port}`,
     timeout: 10000,
 })
 
-// Флаг для предотвращения множественных refresh запросов
 let isRefreshing = false
 let failedQueue = []
 
@@ -20,15 +19,19 @@ const processQueue = (error, token = null) => {
             prom.resolve(token)
         }
     })
-
     isRefreshing = false
     failedQueue = []
 }
 
-// Request interceptor - добавляем токен в каждый запрос
 apiClient.interceptors.request.use(
     config => {
         const authStore = useAuthStore()
+
+        if (config.skipAuthHeader) {
+            delete config.skipAuthHeader
+            return config
+        }
+
         if (authStore.authToken) {
             config.headers.Authorization = `Bearer ${authStore.authToken}`
         }
@@ -37,18 +40,28 @@ apiClient.interceptors.request.use(
     error => Promise.reject(error)
 )
 
-// Response interceptor - обработка 401 и refresh
 apiClient.interceptors.response.use(
     response => response,
     error => {
-        const {response, config} = error
+        console.log('=== API Error ===')
 
-        const router = useRouter()
+        const {response, config} = error
         const authStore = useAuthStore()
 
-        // Если статус 401
+        // Защита от перехвата refresh запроса
+        if (config.url.includes('/auth/refresh')) {
+            console.log('Refresh request failed with 401')
+            authStore.logout()
+
+            router.isReady().then(() => {
+                console.log('Redirecting to login')
+                router.push('/login')
+            })
+
+            return Promise.reject(error)
+        }
+
         if (response?.status === 401 && authStore.refreshToken) {
-            // Если уже идет refresh, добавляем запрос в очередь
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({resolve, reject})
@@ -60,46 +73,43 @@ apiClient.interceptors.response.use(
 
             isRefreshing = true
 
-            // Вызываем refresh endpoint
+            console.log('Sending refresh token...')
+
             return apiClient.post(
                 '/api/auth/refresh?api-version=1.1',
                 {
                     userId: authStore.userId,
                     refreshToken: authStore.refreshToken,
                 },
-                {
-                    skipAuthHeader: true, // Пропускаем auth header для этого запроса
-                }
+                {skipAuthHeader: true}
             ).then(res => {
-                const {authToken, refreshToken, role} = res.data
-
-                // Обновляем store
+                console.log('Refresh success!')
+                const {authToken, refreshToken} = res.data
                 authStore.updateTokens(authToken, refreshToken)
-
-                // Обновляем Authorization header для оригинального запроса
                 config.headers.Authorization = `Bearer ${authToken}`
-
-                // Обрабатываем очередь ожидающих запросов
                 processQueue(null, authToken)
-
-                // Повторяем оригинальный запрос
                 return apiClient(config)
             }).catch(err => {
-                // Refresh не сработал - перенаправляем на логин
+                console.log('Refresh failed!')
                 processQueue(err, null)
                 authStore.logout()
-                router.push('/login')
+
+                router.isReady().then(() => {
+                    router.push('/login')
+                })
+
                 return Promise.reject(err)
             })
         }
 
-        // Для других ошибок
         if (response?.status === 401) {
+            console.log('401 - logging out')
             authStore.logout()
-            router.push('/login')
+            router.isReady().then(() => {
+                router.push('/login')
+            })
         }
 
-        console.error('API Error:', error)
         return Promise.reject(error)
     }
 )
