@@ -16,6 +16,7 @@ requiresRoles: ['admin', 'supervisor']
           <qrcode-stream
               @detect="onDetect"
               @error="onError"
+              :constraints="videoConstraints"
               class="w-full rounded-lg overflow-hidden border-2 border-blue-300"
           />
         </div>
@@ -177,6 +178,10 @@ const achievementsDb = ref([])
 
 // Информация о студенте
 const studentInfo = ref(null)
+
+const videoConstraints = {
+  facingMode: 'environment'
+}
 
 onMounted(async () => {
   const achievementsResponse = await api.get(
