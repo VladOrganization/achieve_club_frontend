@@ -167,7 +167,7 @@ const qrCodeData = computed(() => {
   }
 
   // Кодируем в JSON и преобразуем в строку для QR
-  return JSON.stringify(data)
+  return `${data.studentId}:${data.achievementIds.join(':')}`;
 })
 
 // Обработчики событий
