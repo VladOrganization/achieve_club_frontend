@@ -102,24 +102,13 @@ meta:
 
         <!-- Вкладки достижений -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <TabView
-              :pt="{
-              root: { class: 'w-full' },
-              nav: { class: 'bg-gray-50 border-b border-gray-200' },
-              navContainer: { class: 'flex gap-0' },
-              navContent: { class: 'flex gap-0' },
-              navButton: ({ context }) => ({
-                class: [
-                  'px-6 py-4 font-medium transition-colors',
-                  context.active
-                    ? 'text-indigo-600 border-b-2 border-indigo-600'
-                    : 'text-gray-700 hover:text-gray-900 border-b-2 border-transparent'
-                ]
-              })
-            }"
-          >
+          <TabView>
             <!-- Вкладка выполненных достижений -->
-            <TabPanel header="Выполненные" :header-style="{ padding: '0' }">
+            <TabPanel
+                header="Выполненные"
+                :header-style="{ 'flex': '1 1 0', 'display': 'flex' }"
+                :pt="{ headerAction: { class: 'w-full justify-center !flex !flex-1' }
+            }">
               <div class="p-6">
                 <div
                     v-if="completedAchievements.length === 0"
@@ -178,7 +167,10 @@ meta:
             </TabPanel>
 
             <!-- Вкладка невыполненных достижений -->
-            <TabPanel header="Невыполненные" :header-style="{ padding: '0' }">
+            <TabPanel header="Невыполненные"
+                      :header-style="{ 'flex': '1 1 0', 'display': 'flex' }"
+                      :pt="{ headerAction: { class: 'w-full justify-center !flex !flex-1' }
+            }">
               <div class="p-6">
                 <!-- Инструкция -->
                 <div
@@ -533,5 +525,42 @@ onMounted(async () => {
 .slide-up-leave-to {
   transform: translateY(100px);
   opacity: 0;
+}
+
+/* В PV4 главный контейнер теперь .p-tabview-tablist */
+:deep(.p-tabview-tablist) {
+  display: flex !important;
+  width: 100% !important;
+}
+
+/* Элементы списка вкладок */
+:deep(.p-tabview-tab) {
+  flex: 1 1 0 !important; /* Занимают равное место */
+  display: flex !important;
+}
+
+/* Кнопка внутри вкладки */
+:deep(.p-tabview-tab-button) {
+  width: 100% !important;
+  justify-content: center !important;
+  display: flex !important;
+}
+:deep(.p-tabview-tablist) {
+  display: flex !important;
+  width: 100% !important;
+}
+
+/* 2. Растягиваем элементы LI (теперь они называются так) */
+:deep(.p-tabview-tablist-item) {
+  flex: 1 1 0 !important; /* Делим 50/50 */
+  display: flex !important;
+}
+
+/* 3. Растягиваем саму кнопку (ссылку) внутри LI */
+:deep(.p-tabview-tab) {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important; /* Текст в центр */
+  flex: 1 !important;
 }
 </style>
