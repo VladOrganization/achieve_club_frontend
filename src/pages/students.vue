@@ -4,7 +4,7 @@ meta:
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen bg-canvas py-8 px-4">
     <div class="max-w-7xl mx-auto">
       <!-- Заголовок и поиск -->
       <div class="mb-8">
@@ -27,7 +27,7 @@ meta:
                   placeholder="Поиск по имени..."
                   @input="handleSearch"
                   :pt="{
-                  root: { class: 'px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500' }
+                  root: { class: 'px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500' }
                 }"
               />
             </InputGroup>
@@ -42,7 +42,7 @@ meta:
               text
               @click="sortBy = 'all'"
               :pt="{
-              root: { class: sortBy === 'all' ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' : 'text-gray-700 hover:bg-gray-100' }
+              root: { class: sortBy === 'all' ? 'text-brand-600 bg-brand-50 hover:bg-brand-100' : 'text-gray-700 hover:bg-gray-100' }
             }"
           />
           <Button
@@ -51,7 +51,7 @@ meta:
               text
               @click="sortBy = 'xp'"
               :pt="{
-              root: { class: sortBy === 'xp' ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' : 'text-gray-700 hover:bg-gray-100' }
+              root: { class: sortBy === 'xp' ? 'text-brand-600 bg-brand-50 hover:bg-brand-100' : 'text-gray-700 hover:bg-gray-100' }
             }"
           />
           <Button
@@ -60,7 +60,7 @@ meta:
               text
               @click="sortBy = 'name'"
               :pt="{
-              root: { class: sortBy === 'name' ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' : 'text-gray-700 hover:bg-gray-100' }
+              root: { class: sortBy === 'name' ? 'text-brand-600 bg-brand-50 hover:bg-brand-100' : 'text-gray-700 hover:bg-gray-100' }
             }"
           />
         </div>
@@ -104,7 +104,7 @@ meta:
           <div class="relative overflow-hidden w-24 h-24 bg-gray-200 flex-shrink-0">
             <img
                 v-if="loadedImages[student.id]"
-                :src="`https://byteschool.online:5001/${student.avatar}`"
+                :src="mediaUrl(student.avatar)"
                 :alt="`${student.firstName} ${student.lastName}`"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 @error="handleImageError(student.id)"
@@ -132,7 +132,7 @@ meta:
             <div>
               <div class="flex justify-between items-center mb-1">
                 <span class="text-xs font-medium text-gray-700">XP</span>
-                <span class="text-xs font-bold text-indigo-600">
+                <span class="text-xs font-bold text-brand-600">
                   {{ formatNumber(student.xpSum) }}
                 </span>
               </div>
@@ -141,7 +141,7 @@ meta:
                   :show-value="false"
                   :pt="{
                   root: { class: 'h-1 bg-gray-200' },
-                  value: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500' }
+                  value: { class: 'bg-gradient-to-r from-accent-400 to-accent-600' }
                 }"
               />
             </div>
@@ -164,7 +164,7 @@ meta:
           <div class="relative overflow-hidden h-48 bg-gray-200">
             <img
                 v-if="loadedImages[student.id]"
-                :src="`https://byteschool.online:5001/${student.avatar}`"
+                :src="mediaUrl(student.avatar)"
                 :alt="`${student.firstName} ${student.lastName}`"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 @error="handleImageError(student.id)"
@@ -195,7 +195,7 @@ meta:
             <div class="mb-3">
               <div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-medium text-gray-700">XP</span>
-                <span class="text-sm font-bold text-indigo-600">
+                <span class="text-sm font-bold text-brand-600">
                   {{ formatNumber(student.xpSum) }}
                 </span>
               </div>
@@ -204,7 +204,7 @@ meta:
                   :show-value="false"
                   :pt="{
                   root: { class: 'h-2 bg-gray-200' },
-                  value: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500' }
+                  value: { class: 'bg-gradient-to-r from-accent-400 to-accent-600' }
                 }"
               />
             </div>
@@ -224,12 +224,12 @@ meta:
             template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
             :pt="{
             root: { class: 'bg-white border border-gray-200 rounded-lg' },
-            firstPageButton: { class: 'text-indigo-600 hover:text-indigo-800' },
-            prevPageButton: { class: 'text-indigo-600 hover:text-indigo-800' },
-            nextPageButton: { class: 'text-indigo-600 hover:text-indigo-800' },
-            lastPageButton: { class: 'text-indigo-600 hover:text-indigo-800' },
+            firstPageButton: { class: 'text-brand-600 hover:text-brand-800' },
+            prevPageButton: { class: 'text-brand-600 hover:text-brand-800' },
+            nextPageButton: { class: 'text-brand-600 hover:text-brand-800' },
+            lastPageButton: { class: 'text-brand-600 hover:text-brand-800' },
             pageButton: ({ context }) => ({
-              class: context.active ? 'text-indigo-600 bg-indigo-50' : 'text-gray-700 hover:bg-gray-100'
+              class: context.active ? 'text-brand-600 bg-brand-50' : 'text-gray-700 hover:bg-gray-100'
             })
           }"
         />
@@ -250,6 +250,7 @@ import Skeleton from 'primevue/skeleton'
 import ProgressBar from 'primevue/progressbar'
 import Paginator from 'primevue/paginator'
 import api from '@/api/client'
+import { mediaUrl } from '@/utils/media'
 
 const router = useRouter()
 

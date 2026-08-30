@@ -5,7 +5,7 @@ requiresRoles: ['admin', 'supervisor']
 </route>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2">
+  <div class="min-h-screen bg-gradient-to-br from-canvas to-brand-100 p-2">
     <div class="max-w-2xl mx-auto">
       <!-- Если данные не отсканированы -->
       <div v-if="!scannedData" class="bg-white rounded-lg shadow-lg p-2">
@@ -42,8 +42,8 @@ requiresRoles: ['admin', 'supervisor']
       <div v-else class="bg-white rounded-lg shadow-lg p-2">
         <!-- Информация о студенте -->
         <div
-            class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50
-                 rounded-lg border border-blue-200"
+            class="mb-8 p-6 bg-gradient-to-r from-brand-50 to-gold-50
+                 rounded-lg border border-brand-200"
         >
           <h2 class="text-2xl font-bold text-gray-800">👤 {{ studentInfo }}</h2>
         </div>
@@ -83,7 +83,7 @@ requiresRoles: ['admin', 'supervisor']
 
           <div
               v-else
-              class="p-4 text-center text-gray-500 bg-gray-50 rounded-lg"
+              class="p-4 text-center text-gray-500 bg-canvas rounded-lg"
           >
             Достижения не найдены
           </div>
@@ -102,7 +102,7 @@ requiresRoles: ['admin', 'supervisor']
             {{ totalExperience }}
             <span class="text-lg text-gray-600">опыта</span>
           </p>
-          <p class="text-4xl font-bold text-blue-600">
+          <p class="text-4xl font-bold text-accent-500">
             {{ achievementsList.length }}
             <span class="text-lg text-gray-600">{{ countText }}</span>
           </p>

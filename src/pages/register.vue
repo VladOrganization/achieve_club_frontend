@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-gradient-to-br from-canvas to-brand-100 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
       <!-- Заголовок -->
       <div class="text-center mb-8">
@@ -19,7 +19,7 @@
               :class="[
               'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm',
               currentStep >= step
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-brand-600 text-white'
                 : 'bg-gray-300 text-gray-600',
             ]"
           >
@@ -29,7 +29,7 @@
               v-if="step < 3"
               :class="[
               'flex-1 h-1 mx-2',
-              currentStep > step ? 'bg-indigo-600' : 'bg-gray-300',
+              currentStep > step ? 'bg-brand-600' : 'bg-gray-300',
             ]"
           />
         </div>
@@ -126,7 +126,7 @@
           </p>
 
           <!-- Требования к паролю -->
-          <div class="bg-blue-50 p-3 rounded-lg mt-3">
+          <div class="bg-brand-50 p-3 rounded-lg mt-3">
             <p class="text-xs font-medium text-gray-700 mb-2">Требования:</p>
             <ul class="text-xs text-gray-600 space-y-1">
               <li :class="{ 'text-green-600': form.password.length >= 8 }">
@@ -188,12 +188,12 @@
 
       <!-- Этап 3: Подтверждение email -->
       <form v-if="currentStep === 3" @submit.prevent="completeRegistration" class="space-y-4">
-        <div class="bg-blue-50 p-4 rounded-lg mb-4 text-center">
+        <div class="bg-brand-50 p-4 rounded-lg mb-4 text-center">
           <p class="text-sm text-gray-700">
             Мы отправили код подтверждения на:
             <br/>
           </p>
-          <p class="font-semibold text-indigo-600">{{ form.email }}</p>
+          <p class="font-semibold text-brand-600">{{ form.email }}</p>
         </div>
 
         <div>
@@ -219,7 +219,7 @@
               type="button"
               :disabled="resendCountdown > 0 || isLoading"
               @click="resendCode"
-              class="text-indigo-600 hover:text-indigo-800 font-medium disabled:text-gray-400"
+              class="text-brand-600 hover:text-brand-800 font-medium disabled:text-gray-400"
           >
             {{
               resendCountdown > 0
@@ -265,7 +265,7 @@
         <span>Уже есть аккаунт? </span>
         <router-link
             to="/login"
-            class="text-indigo-600 hover:text-indigo-800 font-medium"
+            class="text-brand-600 hover:text-brand-800 font-medium"
         >
           Войти
         </router-link>

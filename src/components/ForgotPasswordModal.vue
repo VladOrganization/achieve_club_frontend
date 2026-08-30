@@ -75,7 +75,7 @@
             type="button"
             :disabled="resendCountdown > 0"
             @click="resendCode"
-            class="text-indigo-600 hover:text-indigo-800 font-medium disabled:text-gray-400"
+            class="text-brand-600 hover:text-brand-800 font-medium disabled:text-gray-400"
         >
           {{
             resendCountdown > 0
@@ -135,7 +135,7 @@
       </div>
 
       <!-- Требования к паролю -->
-      <div class="bg-blue-50 p-3 rounded-lg">
+      <div class="bg-brand-50 p-3 rounded-lg">
         <p class="text-sm font-medium text-gray-700 mb-2">Требования:</p>
         <ul class="text-sm text-gray-600 space-y-1">
           <li :class="{ 'text-green-600': form.newPassword.length >= 8 }">

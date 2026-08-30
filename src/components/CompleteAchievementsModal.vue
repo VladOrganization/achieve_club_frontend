@@ -7,15 +7,15 @@
       class="w-full max-w-md"
       @hide="onHide"
       :pt="{
-      header: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0 rounded-xl' },
+      header: { class: 'bg-gradient-to-r from-accent-400 to-accent-600 text-white border-0 rounded-xl' },
       title: { class: 'text-white font-bold' }
     }"
   >
     <!-- Содержимое модального окна -->
     <div class="space-y-3">
       <!-- Инструкция -->
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
-        <p class="text-sm text-blue-900">
+      <div class="bg-brand-50 border border-brand-200 rounded-lg p-4 mt-2">
+        <p class="text-sm text-brand-800">
           🎯 Отсканируйте QR-код для подтверждения выполнения достижений
         </p>
       </div>
@@ -30,9 +30,9 @@
               v-for="achievement in selectedAchievementsData"
               :key="achievement.id"
               :value="achievement.title"
-              class="bg-indigo-100 text-indigo-800 px-3 py-2 rounded-full text-xs font-medium"
+              class="bg-brand-100 text-brand-800 px-3 py-2 rounded-full text-xs font-medium"
               :pt="{
-              root: { class: 'bg-indigo-100 text-indigo-800' }
+              root: { class: 'bg-brand-100 text-brand-800' }
             }"
           />
         </div>
@@ -44,14 +44,14 @@
           <p class="text-gray-600 text-xs">Достижений</p>
           <p class="text-2xl font-bold text-green-600">{{ selectedAchievements.length }}</p>
         </div>
-        <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+        <div class="bg-brand-50 rounded-lg p-3 border border-brand-200">
           <p class="text-gray-600 text-xs">Всего XP</p>
-          <p class="text-2xl font-bold text-blue-600">+{{ totalXP }}</p>
+          <p class="text-2xl font-bold text-accent-500">+{{ totalXP }}</p>
         </div>
       </div>
 
       <!-- QR Код -->
-      <div class="bg-gray-50 rounded-lg p-2 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
+      <div class="bg-canvas rounded-lg p-2 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
         <div v-if="qrCodeData" class="bg-white p-4 rounded-lg shadow-md">
           <QRCode
               @click="showDebugInfo = !showDebugInfo"
@@ -68,7 +68,7 @@
       </div>
 
       <!-- Информация для отладки (опционально) -->
-      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200" v-if="showDebugInfo">
+      <div class="bg-canvas rounded-lg p-3 border border-gray-200" v-if="showDebugInfo">
         <p class="text-xs text-gray-600 mb-2 font-medium">Информация:</p>
         <p class="text-xs text-gray-500 break-all font-mono">
           ID студента: {{ studentId }}
