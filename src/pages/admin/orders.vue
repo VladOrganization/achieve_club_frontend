@@ -94,21 +94,16 @@ meta:
           </span>
 
           <div v-if="!isCancelledStatus(order.deliveryStatus)" class="flex flex-wrap gap-2 shrink-0">
-            <select
+            <Select
                 :key="`${order.id}-${order.deliveryStatusId}`"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                :value="order.deliveryStatusId"
+                :model-value="order.deliveryStatusId"
+                :options="activeStatuses"
+                option-label="title"
+                option-value="id"
                 :disabled="updatingId === order.id"
-                @change="changeStatus(order, $event.target.value)"
-            >
-              <option
-                  v-for="status in activeStatuses"
-                  :key="status.id"
-                  :value="status.id"
-              >
-                {{ status.title }}
-              </option>
-            </select>
+                class="w-56"
+                @update:model-value="(statusId) => changeStatus(order, statusId)"
+            />
             <Button
                 v-if="!isReceivedStatus(order.deliveryStatus)"
                 label="Отменить"
@@ -134,6 +129,7 @@ import Button from 'primevue/button'
 import ConfirmDialog from 'primevue/confirmdialog'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
+import Select from 'primevue/select'
 import Skeleton from 'primevue/skeleton'
 import Toast from 'primevue/toast'
 import { useConfirm } from 'primevue/useconfirm'

@@ -124,10 +124,34 @@ html.p-dark nav.fixed {
 html.p-dark .p-inputtext,
 html.p-dark .p-password-input,
 html.p-dark .p-select,
-html.p-dark .p-textarea {
+html.p-dark .p-textarea,
+html.p-dark select {
   background: #1f1b48;
   color: #fbfbfb;
   border-color: #3b3386;
+}
+
+/* Native <select> option lists on Windows stay light even in dark UI. */
+select option {
+  color: #1f1b48;
+  background-color: #ffffff;
+}
+
+html.p-dark .p-select-overlay {
+  background: #1f1b48;
+  color: #fbfbfb;
+  border-color: #3b3386;
+}
+
+html.p-dark .p-select-option {
+  color: #fbfbfb;
+}
+
+html.p-dark .p-select-option:not(.p-disabled):hover,
+html.p-dark .p-select-option:not(.p-disabled).p-focus,
+html.p-dark .p-select-option:not(.p-disabled).p-select-option-selected {
+  background: #3b3386;
+  color: #fbfbfb;
 }
 
 html.p-dark .p-inputtext::placeholder {
