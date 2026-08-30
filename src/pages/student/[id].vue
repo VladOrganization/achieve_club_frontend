@@ -22,14 +22,20 @@ requiresAuth: true
       <div v-if="!isLoading && student" class="space-y-6">
         <!-- Карточка профиля -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="h-32 bg-gradient-to-r from-accent-400 to-accent-600"></div>
+          <div class="h-40 overflow-hidden bg-accent-500">
+            <img
+                :src="mediaUrl('banners/logo.jpg')"
+                alt=""
+                class="h-full w-full object-cover object-center"
+            />
+          </div>
           <div class="px-6 pb-6">
             <div class="flex flex-col md:flex-row md:items-end gap-6 -mt-16 mb-6">
               <!-- Аватарка -->
               <div class="relative">
                 <img
-                    v-if="loadedImages.avatar"
-                    :src="`https://byteschool.online:5001/${student.avatar}`"
+                    v-if="student.avatar && loadedImages.avatar"
+                    :src="mediaUrl(student.avatar)"
                     :alt="`${student.firstName} ${student.lastName}`"
                     class="w-32 h-32 rounded-lg shadow-lg object-cover border-4 border-white"
                     @error="handleImageError('avatar')"
@@ -146,7 +152,7 @@ requiresAuth: true
                       class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center flex-shrink-0 border-2 border-green-300">
                     <img
                         v-if="loadedImages[achievement.id]"
-                        :src="`https://byteschool.online:5001/${achievement.logoURL}`"
+                        :src="mediaUrl(achievement.logoURL)"
                         :alt="achievement.title"
                         class="w-12 h-12 object-contain"
                         @error="handleImageError(achievement.id)"
@@ -225,7 +231,7 @@ import {useToast} from 'primevue/usetoast'
 import api from '@/api/client'
 import {useAuthStore} from '@/stores/auth.js'
 import ReceivedOrderHistory from '@/components/shop/ReceivedOrderHistory.vue'
-import { isReceivedStatus } from '@/utils/media'
+import { isReceivedStatus, mediaUrl } from '@/utils/media'
 
 const router = useRouter()
 const route = useRoute()

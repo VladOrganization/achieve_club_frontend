@@ -104,7 +104,7 @@ meta:
           <div class="relative overflow-hidden w-24 h-24 bg-gray-200 flex-shrink-0">
             <img
                 v-if="loadedImages[student.id]"
-                :src="`https://byteschool.online:5001/${student.avatar}`"
+                :src="mediaUrl(student.avatar)"
                 :alt="`${student.firstName} ${student.lastName}`"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 @error="handleImageError(student.id)"
@@ -164,7 +164,7 @@ meta:
           <div class="relative overflow-hidden h-48 bg-gray-200">
             <img
                 v-if="loadedImages[student.id]"
-                :src="`https://byteschool.online:5001/${student.avatar}`"
+                :src="mediaUrl(student.avatar)"
                 :alt="`${student.firstName} ${student.lastName}`"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 @error="handleImageError(student.id)"
@@ -250,6 +250,7 @@ import Skeleton from 'primevue/skeleton'
 import ProgressBar from 'primevue/progressbar'
 import Paginator from 'primevue/paginator'
 import api from '@/api/client'
+import { mediaUrl } from '@/utils/media'
 
 const router = useRouter()
 

@@ -16,10 +16,13 @@ export const useThemeStore = defineStore('theme', () => {
     const host = event?.currentTarget instanceof Element
       ? event.currentTarget
       : document.querySelector('.theme-switch')
-    if (!host) {
+    const thumb = host?.querySelector?.('.theme-switch__thumb')
+    const target = thumb || host
+    if (!target) {
       return { x: window.innerWidth - 40, y: window.innerHeight - 96 }
     }
-    const rect = host.getBoundingClientRect()
+
+    const rect = target.getBoundingClientRect()
     return {
       x: rect.left + rect.width / 2,
       y: rect.top + rect.height / 2,
@@ -41,19 +44,35 @@ export const useThemeStore = defineStore('theme', () => {
       Math.max(x, window.innerWidth - x),
       Math.max(y, window.innerHeight - y)
     )
+
     const root = document.documentElement
-    root.style.setProperty('--theme-x', `${x}px`)
-    root.style.setProperty('--theme-y', `${y}px`)
-    root.style.setProperty('--theme-r', `${radius}px`)
+    root.classList.add('theme-switching')
 
     try {
       const transition = document.startViewTransition(flip)
+      await transition.ready
+      root.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${radius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 480,
+          easing: 'ease-out',
+          fill: 'both',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      )
       await Promise.race([
         transition.finished.catch(() => {}),
-        new Promise((resolve) => setTimeout(resolve, 600)),
+        new Promise((resolve) => setTimeout(resolve, 700)),
       ])
     } catch {
-      flip()
+      if (isDark.value !== next) flip()
+    } finally {
+      root.classList.remove('theme-switching')
     }
   }
 

@@ -22,14 +22,20 @@ meta:
       <div v-if="!isLoading && student" class="space-y-6">
         <!-- Карточка профиля -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="h-32 bg-gradient-to-r from-accent-400 to-accent-600"></div>
+          <div class="h-40 overflow-hidden bg-accent-500">
+            <img
+                :src="mediaUrl('banners/logo.jpg')"
+                alt=""
+                class="h-full w-full object-cover object-center"
+            />
+          </div>
           <div class="px-6 pb-6">
             <div class="flex flex-col md:flex-row md:items-end gap-6 -mt-16 mb-6">
               <!-- Аватарка -->
-              <div class="relative">
+              <div class="relative w-32 h-32 flex-shrink-0">
                 <img
-                    v-if="loadedImages.avatar"
-                    :src="`https://byteschool.online:5001/${student.avatar}`"
+                    v-if="student.avatar && loadedImages.avatar"
+                    :src="mediaUrl(student.avatar)"
                     :alt="`${student.firstName} ${student.lastName}`"
                     class="w-32 h-32 rounded-lg shadow-lg object-cover border-4 border-white"
                     @error="handleImageError('avatar')"
@@ -40,13 +46,39 @@ meta:
                 >
                   <i class="pi pi-user text-5xl text-white opacity-50"></i>
                 </div>
+                <button
+                    type="button"
+                    class="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-accent-500 text-white shadow-lg flex items-center justify-center hover:bg-accent-600 disabled:opacity-60"
+                    :disabled="isUploadingAvatar"
+                    aria-label="Сменить фото"
+                    @click="pickAvatar"
+                >
+                  <i :class="isUploadingAvatar ? 'pi pi-spin pi-spinner' : 'pi pi-camera'"></i>
+                </button>
+                <input
+                    ref="avatarInput"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,.png,.jpg,.jpeg,.webp,.gif,.bmp"
+                    class="hidden"
+                    @change="onAvatarSelected"
+                />
               </div>
 
               <!-- Информация профиля -->
               <div class="flex-1">
-                <h1 class="text-3xl font-bold text-gray-900">
-                  {{ student.firstName }} {{ student.lastName }}
-                </h1>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h1 class="text-3xl font-bold text-gray-900">
+                    {{ student.firstName }} {{ student.lastName }}
+                  </h1>
+                  <Button
+                      icon="pi pi-pencil"
+                      rounded
+                      text
+                      severity="secondary"
+                      aria-label="Изменить имя"
+                      @click="openNameDialog"
+                  />
+                </div>
               </div>
 
               <!-- Кнопка назад -->
@@ -136,7 +168,7 @@ meta:
                       <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center flex-shrink-0 border-2 border-green-300">
                         <img
                             v-if="loadedImages[achievement.id]"
-                            :src="`https://byteschool.online:5001/${achievement.logoURL}`"
+                            :src="mediaUrl(achievement.logoURL)"
                             :alt="achievement.title"
                             class="w-12 h-12 object-contain"
                             @error="handleImageError(achievement.id)"
@@ -215,7 +247,7 @@ meta:
                         <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center flex-shrink-0 border-2 border-gray-300">
                           <img
                               v-if="loadedImages[achievement.id]"
-                              :src="`https://byteschool.online:5001/${achievement.logoURL}`"
+                              :src="mediaUrl(achievement.logoURL)"
                               :alt="achievement.title"
                               class="w-12 h-12 object-contain"
                               :class="{
@@ -330,27 +362,60 @@ meta:
             @cancel="showModal = false"
         />
       </template>
+
+      <Dialog
+          v-model:visible="showNameDialog"
+          header="Изменить имя"
+          :modal="true"
+          :draggable="false"
+          class="w-full max-w-md"
+          :pt="{
+            header: { class: 'bg-gradient-to-r from-accent-400 to-accent-600 text-white border-0 rounded-t-xl' },
+            title: { class: 'text-white font-bold' }
+          }"
+      >
+        <div class="space-y-4 mt-2">
+          <div>
+            <label for="profile-first-name" class="block text-sm font-medium text-gray-700 mb-2">Имя</label>
+            <InputText id="profile-first-name" v-model="nameDraft.firstName" class="w-full" />
+          </div>
+          <div>
+            <label for="profile-last-name" class="block text-sm font-medium text-gray-700 mb-2">Фамилия</label>
+            <InputText id="profile-last-name" v-model="nameDraft.lastName" class="w-full" />
+          </div>
+        </div>
+        <template #footer>
+          <Button label="Отмена" severity="secondary" @click="showNameDialog = false" />
+          <Button label="Сохранить" :loading="isSavingName" @click="saveName" />
+        </template>
+      </Dialog>
+
+      <Toast />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
+import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
 import Skeleton from 'primevue/skeleton'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 import ProgressBar from 'primevue/progressbar'
-import Checkbox from 'primevue/checkbox'
+import Toast from 'primevue/toast'
+import { useToast } from 'primevue/usetoast'
 import CompleteAchievementsModal from '@/components/CompleteAchievementsModal.vue'
 import ReceivedOrderHistory from '@/components/shop/ReceivedOrderHistory.vue'
 import api from '@/api/client'
 import {useAuthStore} from "@/stores/auth.js";
-import { isReceivedStatus } from '@/utils/media'
+import { isReceivedStatus, mediaUrl } from '@/utils/media'
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToast()
 
 const student = ref(null)
 const allAchievements = ref([])
@@ -362,6 +427,11 @@ const isSubmitting = ref(false)
 const errorMessage = ref('')
 const loadedImages = ref({ avatar: true })
 const shopOrders = ref([])
+const avatarInput = ref(null)
+const isUploadingAvatar = ref(false)
+const showNameDialog = ref(false)
+const isSavingName = ref(false)
+const nameDraft = ref({ firstName: '', lastName: '' })
 
 const receivedOrders = computed(() =>
     shopOrders.value.filter((o) => isReceivedStatus(o.deliveryStatus))
@@ -506,6 +576,92 @@ const completeSelectedAchievements = async () => {
     console.error('Error completing achievements:', error)
   } finally {
     isSubmitting.value = false
+  }
+}
+
+const pickAvatar = () => {
+  if (isUploadingAvatar.value) return
+  avatarInput.value?.click()
+}
+
+const onAvatarSelected = async (event) => {
+  const file = event.target.files?.[0]
+  event.target.value = ''
+  if (!file) return
+
+  const allowed = ['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif']
+  const ext = file.name.includes('.') ? `.${file.name.split('.').pop().toLowerCase()}` : ''
+  if (!allowed.includes(ext)) {
+    toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Поддерживаются PNG, JPG, WEBP, BMP и GIF', life: 4000 })
+    return
+  }
+  if (file.size > 10_000_000) {
+    toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Файл больше 10 МБ', life: 4000 })
+    return
+  }
+
+  isUploadingAvatar.value = true
+  try {
+    const form = new FormData()
+    form.append('file', file)
+    const response = await api.post('/api/avatar', form, { timeout: 60000 })
+    const path = typeof response.data === 'string' ? response.data : response.data?.path
+    if (path && student.value) {
+      student.value.avatar = path
+      loadedImages.value.avatar = true
+    }
+    toast.add({ severity: 'success', summary: 'Готово', detail: 'Фото обновлено', life: 2500 })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: typeof error.response?.data === 'string' ? error.response.data : 'Не удалось обновить фото',
+      life: 4000,
+    })
+  } finally {
+    isUploadingAvatar.value = false
+  }
+}
+
+const openNameDialog = () => {
+  nameDraft.value = {
+    firstName: student.value?.firstName || '',
+    lastName: student.value?.lastName || '',
+  }
+  showNameDialog.value = true
+}
+
+const saveName = async () => {
+  const firstName = (nameDraft.value.firstName || '').trim()
+  const lastName = (nameDraft.value.lastName || '').trim()
+
+  if (firstName.length < 2 || firstName.length > 100) {
+    toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Имя должно содержать от 2 до 100 символов', life: 4000 })
+    return
+  }
+  if (lastName.length < 2 || lastName.length > 100) {
+    toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Фамилия должна содержать от 2 до 100 символов', life: 4000 })
+    return
+  }
+
+  isSavingName.value = true
+  try {
+    await api.patch('/api/users/change_name', { firstName, lastName })
+    if (student.value) {
+      student.value.firstName = firstName
+      student.value.lastName = lastName
+    }
+    showNameDialog.value = false
+    toast.add({ severity: 'success', summary: 'Готово', detail: 'Имя обновлено', life: 2500 })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: typeof error.response?.data === 'string' ? error.response.data : 'Не удалось обновить имя',
+      life: 4000,
+    })
+  } finally {
+    isSavingName.value = false
   }
 }
 
