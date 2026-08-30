@@ -7,11 +7,11 @@
       class="w-full max-w-lg"
       @hide="onHide"
       :pt="{
-        header: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0 rounded-t-xl' },
+        header: { class: 'bg-gradient-to-r from-brand-500 to-brand-800 text-white border-0 rounded-t-xl' },
         title: { class: 'text-white font-bold' }
       }"
   >
-    <div v-if="product && variant" class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex gap-4 mt-2">
+    <div v-if="product && variant" class="bg-canvas rounded-lg p-4 border border-gray-200 flex gap-4 mt-2">
       <div class="w-24 h-24 bg-white rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
         <img
             v-if="photo && imageLoaded"
@@ -23,7 +23,7 @@
         <i v-else class="pi pi-image text-2xl text-gray-300"></i>
       </div>
       <div class="min-w-0">
-        <p class="text-xl font-bold text-indigo-600">{{ formatXp(product.price) }}</p>
+        <p class="text-xl font-bold text-brand-600">{{ formatXp(product.price) }}</p>
         <p class="font-bold text-gray-900 mt-1">{{ product.type }}</p>
         <p class="text-gray-600 text-sm">{{ product.title }}</p>
         <p class="text-gray-500 text-sm mt-1">Цвет: {{ variant.title || variant.color }}</p>

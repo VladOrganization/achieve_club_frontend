@@ -10,7 +10,7 @@ meta:
       <h1 class="text-3xl font-bold text-gray-900 mb-2">Коды подтверждения Email</h1>
       <p class="text-gray-600">
         Обновляется автоматически каждые 15 секунд
-        <span class="ml-2 text-sm" :class="isLoading ? 'text-blue-500' : 'text-green-500'">
+        <span class="ml-2 text-sm" :class="isLoading ? 'text-accent-500' : 'text-green-500'">
           {{ isLoading ? '⟳ Загрузка...' : '✓ Последнее обновление: ' + lastUpdateTime }}
         </span>
       </p>
@@ -35,7 +35,7 @@ meta:
           <div class="mx-6 text-center">
             <p class="text-sm text-gray-600 mb-1">Код</p>
             <p
-                class="text-3xl font-bold text-blue-600 font-mono cursor-pointer hover:text-blue-700 transition-colors relative group"
+                class="text-3xl font-bold text-accent-500 font-mono cursor-pointer hover:text-accent-700 transition-colors relative group"
                 @click="copyToClipboard(item.proofCode)"
             >
               {{ item.proofCode }}

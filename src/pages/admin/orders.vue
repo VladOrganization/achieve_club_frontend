@@ -5,7 +5,7 @@ meta:
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen bg-canvas py-8 px-4">
     <div class="max-w-7xl mx-auto">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
@@ -60,7 +60,7 @@ meta:
             :key="order.id"
             class="bg-white rounded-lg shadow-md p-4 flex flex-col lg:flex-row lg:items-center gap-4"
         >
-          <div class="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+          <div class="w-16 h-16 bg-canvas rounded-lg flex items-center justify-center overflow-hidden shrink-0">
             <img
                 v-if="order.photo"
                 :src="mediaUrl(order.photo)"
@@ -72,7 +72,7 @@ meta:
 
           <div class="flex-1 min-w-0">
             <button
-                class="font-bold text-gray-900 hover:text-indigo-600 text-left"
+                class="font-bold text-gray-900 hover:text-brand-600 text-left"
                 @click="router.push(`/student/${order.userId}`)"
             >
               {{ order.firstName }} {{ order.lastName }}
@@ -84,7 +84,7 @@ meta:
             <p class="text-xs text-gray-500 mt-1">{{ formatDateTime(order.orderDate) }}</p>
           </div>
 
-          <p class="font-bold text-indigo-600 shrink-0">{{ formatXp(order.price) }}</p>
+          <p class="font-bold text-brand-600 shrink-0">{{ formatXp(order.price) }}</p>
 
           <span
               class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold text-white shrink-0"

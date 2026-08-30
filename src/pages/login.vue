@@ -1,7 +1,7 @@
 <template>
   <ForgotPasswordModal v-model="showForgotPasswordModal"/>
 
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-gradient-to-br from-canvas to-brand-100 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
       <!-- Заголовок -->
       <div class="text-center mb-8">

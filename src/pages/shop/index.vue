@@ -4,7 +4,7 @@ meta:
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen bg-canvas py-8 px-4">
     <div class="max-w-7xl mx-auto">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
@@ -12,9 +12,9 @@ meta:
           <p class="text-gray-600 mt-1">Обменивайте XP на товары клуба</p>
         </div>
         <div class="flex items-center gap-3">
-          <div class="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3">
+          <div class="bg-brand-50 border border-brand-200 rounded-lg px-4 py-3">
             <p class="text-gray-600 text-xs font-medium">Баланс</p>
-            <p class="text-2xl font-bold text-indigo-600">{{ formatXp(balance) }}</p>
+            <p class="text-2xl font-bold text-brand-600">{{ formatXp(balance) }}</p>
           </div>
           <Button
               icon="pi pi-info-circle"
@@ -49,7 +49,7 @@ meta:
               :pt="{
                 root: {
                   class: selectedCategoryId === category.id
-                    ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'
+                    ? 'text-brand-600 bg-brand-50 hover:bg-brand-100'
                     : 'text-gray-700 hover:bg-gray-100'
                 }
               }"
@@ -60,7 +60,7 @@ meta:
             v-if="latestOrder"
             class="bg-white rounded-lg shadow-md p-4 mb-6 flex items-center gap-4"
         >
-          <div class="w-20 h-20 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+          <div class="w-20 h-20 bg-canvas rounded-lg flex items-center justify-center overflow-hidden shrink-0">
             <img
                 v-if="latestOrder.photo && orderImageLoaded"
                 :src="mediaUrl(latestOrder.photo)"
@@ -75,7 +75,7 @@ meta:
             <p class="text-gray-600 text-sm">
               {{ latestOrder.productType }} {{ latestOrder.productTitle }}
             </p>
-            <p class="text-indigo-600 text-sm font-medium mt-1">
+            <p class="text-brand-600 text-sm font-medium mt-1">
               Заказ от {{ formatDate(latestOrder.orderDate) }}
             </p>
           </div>
@@ -151,7 +151,7 @@ meta:
         :draggable="false"
         class="w-full max-w-md"
         :pt="{
-          header: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0 rounded-t-xl' },
+          header: { class: 'bg-gradient-to-r from-brand-500 to-brand-800 text-white border-0 rounded-t-xl' },
           title: { class: 'text-white font-bold' }
         }"
     >

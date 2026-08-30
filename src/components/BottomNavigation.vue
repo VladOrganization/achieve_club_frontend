@@ -8,7 +8,7 @@
           class="flex flex-col items-center justify-center flex-1 h-full gap-1 text-xs font-medium transition-colors"
           :class="[
           isActive(item.path)
-            ? 'text-blue-600'
+            ? 'text-accent-500'
             : 'text-gray-600 hover:text-gray-900'
         ]"
       >

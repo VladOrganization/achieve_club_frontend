@@ -4,7 +4,7 @@ requiresAuth: true
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen bg-canvas py-8 px-4">
     <div class="max-w-4xl mx-auto">
       <!-- Состояние загрузки -->
       <Skeleton v-if="isLoading" height="600px"/>
@@ -22,7 +22,7 @@ requiresAuth: true
       <div v-if="!isLoading && student" class="space-y-6">
         <!-- Карточка профиля -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="h-32 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
+          <div class="h-32 bg-gradient-to-r from-brand-500 to-brand-800"></div>
           <div class="px-6 pb-6">
             <div class="flex flex-col md:flex-row md:items-end gap-6 -mt-16 mb-6">
               <!-- Аватарка -->
@@ -63,9 +63,9 @@ requiresAuth: true
 
             <!-- Статистика -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+              <div class="bg-brand-50 rounded-lg p-4 border border-brand-200">
                 <p class="text-gray-600 text-sm font-medium">Общий опыт</p>
-                <p class="text-3xl font-bold text-indigo-600 mt-2">
+                <p class="text-3xl font-bold text-brand-600 mt-2">
                   {{ formatNumber(student.xpSum) }}
                 </p>
                 <p class="text-gray-600 text-xs mt-1">XP</p>
@@ -97,18 +97,18 @@ requiresAuth: true
                 </p>
               </div>
 
-              <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <div class="bg-brand-50 rounded-lg p-4 border border-brand-200">
                 <p class="text-gray-600 text-sm font-medium">Процент завершения</p>
-                <p class="text-3xl font-bold text-blue-600 mt-2">
+                <p class="text-3xl font-bold text-brand-600 mt-2">
                   {{ completionPercentage }}%
                 </p>
                 <ProgressBar
                     :value="completionPercentage"
                     :show-value="false"
-                    class="mt-3 h-2 bg-blue-200"
+                    class="mt-3 h-2 bg-brand-200"
                     :pt="{
-                    root: { class: 'h-2 bg-blue-200' },
-                    value: { class: 'bg-gradient-to-r from-blue-500 to-cyan-500' }
+                    root: { class: 'h-2 bg-brand-200' },
+                    value: { class: 'bg-gradient-to-r from-gold-500 to-accent-500' }
                   }"
                 />
               </div>
@@ -188,7 +188,7 @@ requiresAuth: true
         :draggable="false"
         class="w-full max-w-md"
         :pt="{
-          header: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0 rounded-t-xl' },
+          header: { class: 'bg-gradient-to-r from-brand-500 to-brand-800 text-white border-0 rounded-t-xl' },
           title: { class: 'text-white font-bold' }
         }"
     >

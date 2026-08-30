@@ -3,7 +3,7 @@
       class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       @click="$emit('open')"
   >
-    <div class="bg-gray-50 p-4 flex items-center justify-center h-52 relative">
+    <div class="bg-canvas p-4 flex items-center justify-center h-52 relative">
       <img
           v-if="photo && imageLoaded"
           :src="mediaUrl(photo)"

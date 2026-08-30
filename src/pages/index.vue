@@ -4,7 +4,7 @@ meta:
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen bg-canvas py-8 px-4">
     <div class="max-w-4xl mx-auto">
       <!-- Состояние загрузки -->
       <Skeleton v-if="isLoading" height="600px" />
@@ -22,7 +22,7 @@ meta:
       <div v-if="!isLoading && student" class="space-y-6">
         <!-- Карточка профиля -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="h-32 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
+          <div class="h-32 bg-gradient-to-r from-brand-500 to-brand-800"></div>
           <div class="px-6 pb-6">
             <div class="flex flex-col md:flex-row md:items-end gap-6 -mt-16 mb-6">
               <!-- Аватарка -->
@@ -63,9 +63,9 @@ meta:
 
             <!-- Статистика -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+              <div class="bg-brand-50 rounded-lg p-4 border border-brand-200">
                 <p class="text-gray-600 text-sm font-medium">Общий опыт</p>
-                <p class="text-3xl font-bold text-indigo-600 mt-2">
+                <p class="text-3xl font-bold text-brand-600 mt-2">
                   {{ formatNumber(student.xpSum) }}
                 </p>
                 <p class="text-gray-600 text-xs mt-1">XP</p>
@@ -81,18 +81,18 @@ meta:
                 </p>
               </div>
 
-              <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <div class="bg-brand-50 rounded-lg p-4 border border-brand-200">
                 <p class="text-gray-600 text-sm font-medium">Процент завершения</p>
-                <p class="text-3xl font-bold text-blue-600 mt-2">
+                <p class="text-3xl font-bold text-accent-500 mt-2">
                   {{ completionPercentage }}%
                 </p>
                 <ProgressBar
                     :value="completionPercentage"
                     :show-value="false"
-                    class="mt-3 h-2 bg-blue-200"
+                    class="mt-3 h-2 bg-brand-200"
                     :pt="{
-                    root: { class: 'h-2 bg-blue-200' },
-                    value: { class: 'bg-gradient-to-r from-blue-500 to-cyan-500' }
+                    root: { class: 'h-2 bg-brand-200' },
+                    value: { class: 'bg-gradient-to-r from-gold-500 to-accent-500' }
                   }"
                 />
               </div>
@@ -177,9 +177,9 @@ meta:
                 <!-- Инструкция -->
                 <div
                     v-if="uncompletedAchievements.length > 0"
-                    class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"
+                    class="bg-brand-50 border border-brand-200 rounded-lg p-3 mb-4"
                 >
-                  <p class="text-sm text-blue-900">
+                  <p class="text-sm text-brand-800">
                     💡 Выберите достижения, которые были выполнены, и нажмите кнопку внизу
                   </p>
                 </div>
@@ -204,7 +204,7 @@ meta:
                       :class="[
                       'bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 cursor-pointer transition-all duration-300',
                       selectedAchievements.includes(achievement.id)
-                        ? 'border-indigo-500 shadow-lg bg-indigo-50 to-indigo-100'
+                        ? 'border-brand-500 shadow-lg bg-brand-50 to-brand-100'
                         : 'border-gray-300 hover:shadow-md opacity-75 hover:opacity-100'
                     ]"
                       @click="toggleAchievementSelection(achievement.id)"
@@ -228,7 +228,7 @@ meta:
                               v-else
                               class="pi pi-lock text-3xl"
                               :class="{
-                              'text-indigo-500': selectedAchievements.includes(achievement.id),
+                              'text-brand-500': selectedAchievements.includes(achievement.id),
                               'text-gray-400': !selectedAchievements.includes(achievement.id)
                             }"
                           ></i>
@@ -238,7 +238,7 @@ meta:
                           :class="[
                           'text-white px-3 py-2 rounded-lg shadow-md text-center',
                           selectedAchievements.includes(achievement.id)
-                            ? 'bg-gradient-to-r from-indigo-500 to-indigo-600'
+                            ? 'bg-gradient-to-r from-brand-500 to-brand-700'
                             : 'bg-gray-400'
                         ]"
                       >
@@ -261,8 +261,8 @@ meta:
                           :class="[
                           'inline-block px-3 py-1 rounded-full text-xs font-bold',
                           selectedAchievements.includes(achievement.id)
-                            ? 'bg-indigo-500 text-white'
-                            : 'bg-gray-500 text-white'
+                            ? 'bg-brand-500 text-white'
+                            : 'bg-canvas0 text-white'
                         ]"
                       >
                         {{
@@ -286,9 +286,9 @@ meta:
             v-if="selectedAchievements.length > 0"
             class="fixed bottom-8 right-8 flex flex-col gap-2 z-50"
         >
-          <div class="bg-white rounded-lg shadow-lg p-4 border-l-4 border-indigo-600">
+          <div class="bg-white rounded-lg shadow-lg p-4 border-l-4 border-brand-600">
             <p class="text-sm font-medium text-gray-900 mb-3">
-              Выбрано достижений: <span class="text-indigo-600 font-bold">{{ selectedAchievements.length }}</span>
+              Выбрано достижений: <span class="text-brand-600 font-bold">{{ selectedAchievements.length }}</span>
             </p>
             <p class="text-xs text-gray-600 mb-3">
               XP к получению: <span class="text-green-600 font-bold">+{{ totalSelectedXP }}</span>

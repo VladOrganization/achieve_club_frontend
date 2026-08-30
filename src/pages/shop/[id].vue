@@ -4,19 +4,20 @@ meta:
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen bg-canvas py-8 px-4">
     <div class="max-w-5xl mx-auto">
-      <div class="flex items-center justify-between gap-4 mb-6">
-        <Button
-            icon="pi pi-arrow-left"
-            label="К магазину"
-            severity="secondary"
-            text
-            @click="router.push('/shop')"
-        />
-        <div class="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2">
-          <p class="text-sm font-bold text-indigo-600">Баланс: {{ formatXp(balance) }}</p>
+      <div class="sticky top-0 z-20 flex items-center justify-between gap-4 mb-6 -mt-8 pt-8 pb-3 bg-canvas">
+        <div class="bg-brand-50 border border-brand-200 rounded-lg px-4 py-2">
+          <p class="text-sm font-bold text-brand-600">Баланс: {{ formatXp(balance) }}</p>
         </div>
+        <button
+            type="button"
+            class="w-11 h-11 rounded-full bg-white border border-brand-200 text-brand-600 hover:bg-accent-500 hover:text-white hover:border-accent-500 shadow-sm flex items-center justify-center transition-colors"
+            aria-label="Закрыть и вернуться в каталог"
+            @click="router.push('/shop')"
+        >
+          <i class="pi pi-times text-lg"></i>
+        </button>
       </div>
 
       <Skeleton v-if="isLoading" height="520px" />
@@ -53,7 +54,7 @@ meta:
                   v-for="(photo, index) in photos"
                   :key="`${photo.url}-${index}`"
                   class="w-14 h-14 rounded-lg overflow-hidden border-2 bg-white"
-                  :class="index === photoIndex ? 'border-indigo-500' : 'border-transparent hover:border-gray-300'"
+                  :class="index === photoIndex ? 'border-accent-500' : 'border-transparent hover:border-gray-300'"
                   @click="photoIndex = index"
               >
                 <img :src="mediaUrl(photo.url)" alt="" class="w-full h-full object-contain" />
@@ -68,7 +69,7 @@ meta:
                   :key="variant.id"
                   class="w-10 h-10 rounded-lg border-2 transition-shadow"
                   :class="[
-                    variant.id === selectedVariantId ? 'border-indigo-500 shadow-md' : 'border-gray-200',
+                    variant.id === selectedVariantId ? 'border-accent-500 shadow-md' : 'border-gray-200',
                     !variant.available ? 'opacity-40' : ''
                   ]"
                   :style="{ backgroundColor: isCssColor(variant.color) ? variant.color : '#e5e7eb' }"

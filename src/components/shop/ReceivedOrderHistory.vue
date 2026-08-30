@@ -2,7 +2,7 @@
   <div v-if="orders.length" class="bg-white rounded-lg shadow-md overflow-hidden">
     <button
         type="button"
-        class="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 transition-colors"
+        class="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-canvas transition-colors"
         @click="expanded = !expanded"
     >
       <span class="font-bold text-gray-900">Полученные заказы</span>
@@ -18,7 +18,7 @@
           :key="order.id"
           class="flex items-center gap-3 px-6 py-3"
       >
-        <div class="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+        <div class="w-12 h-12 bg-canvas rounded-lg flex items-center justify-center overflow-hidden shrink-0">
           <img
               v-if="order.photo"
               :src="mediaUrl(order.photo)"
