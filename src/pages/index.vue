@@ -100,6 +100,8 @@ meta:
           </div>
         </div>
 
+        <ReceivedOrderHistory :orders="receivedOrders" />
+
         <!-- Вкладки достижений -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
           <TabView>
@@ -343,8 +345,10 @@ import TabPanel from 'primevue/tabpanel'
 import ProgressBar from 'primevue/progressbar'
 import Checkbox from 'primevue/checkbox'
 import CompleteAchievementsModal from '@/components/CompleteAchievementsModal.vue'
+import ReceivedOrderHistory from '@/components/shop/ReceivedOrderHistory.vue'
 import api from '@/api/client'
 import {useAuthStore} from "@/stores/auth.js";
+import { isReceivedStatus } from '@/utils/media'
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -357,6 +361,11 @@ const isLoading = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref('')
 const loadedImages = ref({ avatar: true })
+const shopOrders = ref([])
+
+const receivedOrders = computed(() =>
+    shopOrders.value.filter((o) => isReceivedStatus(o.deliveryStatus))
+)
 
 // Получение всех данных
 const loadStudentData = async () => {
@@ -389,6 +398,13 @@ const loadStudentData = async () => {
     allAchievements.value.forEach((achievement) => {
       loadedImages.value[achievement.id] = true
     })
+
+    try {
+      const ordersResponse = await api.get('/api/orders')
+      shopOrders.value = ordersResponse.data || []
+    } catch {
+      shopOrders.value = []
+    }
   } catch (error) {
     errorMessage.value =
         error.message || 'Ошибка при загрузке данных студента'

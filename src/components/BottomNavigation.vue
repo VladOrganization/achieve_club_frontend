@@ -3,7 +3,7 @@
     <div class="flex justify-around items-center h-16">
       <RouterLink
           v-for="item in navItems"
-          :key="item.name"
+          :key="item.path"
           :to="item.path"
           class="flex flex-col items-center justify-center flex-1 h-full gap-1 text-xs font-medium transition-colors"
           :class="[
@@ -29,7 +29,8 @@ const authStore = useAuthStore()
 
 const navItems = ref([
   {title: 'home', path: '/', label: 'Главная', icon: 'pi pi-home'},
-  {title: 'students', path: '/students', label: 'Топ', icon: 'pi pi-users'}
+  {title: 'students', path: '/students', label: 'Топ', icon: 'pi pi-users'},
+  {title: 'shop', path: '/shop', label: 'Магазин', icon: 'pi pi-shopping-bag'}
 ])
 
 onMounted(() => {
@@ -39,10 +40,14 @@ onMounted(() => {
     navItems.value = [
       ...navItems.value,
       {title: 'scanner', path: '/scanner', label: 'Сканер', icon: 'pi pi-qrcode'},
+      {title: 'orders', path: '/admin/orders', label: 'Заказы', icon: 'pi pi-box'},
       {title: 'codes', path: '/codes', label: 'Коды', icon: 'pi pi-key'}
     ]
   }
 })
 
-const isActive = (path) => route.path === path
+const isActive = (path) => {
+  if (path === '/') return route.path === '/'
+  return route.path === path || route.path.startsWith(`${path}/`)
+}
 </script>

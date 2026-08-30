@@ -7,6 +7,7 @@ import App from './App.vue'
 import {createPinia} from "pinia"
 import persistedState from 'pinia-plugin-persistedstate'
 import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
 
 const app = createApp(App);
 
@@ -26,5 +27,6 @@ pinia.use(persistedState)
 app.use(pinia);
 
 app.use(ToastService);
+app.use(ConfirmationService);
 
 app.mount('#app')

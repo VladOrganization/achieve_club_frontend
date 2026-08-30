@@ -62,13 +62,29 @@ requiresAuth: true
             </div>
 
             <!-- Статистика -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
                 <p class="text-gray-600 text-sm font-medium">Общий опыт</p>
                 <p class="text-3xl font-bold text-indigo-600 mt-2">
                   {{ formatNumber(student.xpSum) }}
                 </p>
                 <p class="text-gray-600 text-xs mt-1">XP</p>
+              </div>
+
+              <div
+                  v-if="canManageBalance"
+                  class="bg-amber-50 rounded-lg p-4 border border-amber-200"
+              >
+                <p class="text-gray-600 text-sm font-medium">Баланс магазина</p>
+                <p class="text-3xl font-bold text-amber-600 mt-2">
+                  {{ formatNumber(shopBalance) }}
+                </p>
+                <Button
+                    label="Изменить"
+                    size="small"
+                    class="mt-3"
+                    @click="openBalanceDialog"
+                />
               </div>
 
               <div class="bg-green-50 rounded-lg p-4 border border-green-200">
@@ -99,6 +115,8 @@ requiresAuth: true
             </div>
           </div>
         </div>
+
+        <ReceivedOrderHistory :orders="receivedOrders" />
 
         <!-- Вкладки достижений -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -162,6 +180,34 @@ requiresAuth: true
         </div>
       </div>
     </div>
+
+    <Dialog
+        v-model:visible="showBalanceDialog"
+        header="Баланс магазина"
+        :modal="true"
+        :draggable="false"
+        class="w-full max-w-md"
+        :pt="{
+          header: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0 rounded-t-xl' },
+          title: { class: 'text-white font-bold' }
+        }"
+    >
+      <p class="text-sm text-gray-600 mt-2 mb-3">Текущее значение будет заменено на новое.</p>
+      <InputNumber
+          v-model="balanceDraft"
+          :min="0"
+          :min-fraction-digits="0"
+          :max-fraction-digits="0"
+          :use-grouping="false"
+          class="w-full"
+      />
+      <template #footer>
+        <Button label="Отмена" severity="secondary" @click="showBalanceDialog = false" />
+        <Button label="Сохранить" :loading="isSavingBalance" @click="saveBalance" />
+      </template>
+    </Dialog>
+
+    <Toast />
   </div>
 </template>
 
@@ -169,13 +215,22 @@ requiresAuth: true
 import {ref, computed, onMounted} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
+import InputNumber from 'primevue/inputnumber'
 import Message from 'primevue/message'
 import Skeleton from 'primevue/skeleton'
 import ProgressBar from 'primevue/progressbar'
+import Toast from 'primevue/toast'
+import {useToast} from 'primevue/usetoast'
 import api from '@/api/client'
+import {useAuthStore} from '@/stores/auth.js'
+import ReceivedOrderHistory from '@/components/shop/ReceivedOrderHistory.vue'
+import { isReceivedStatus } from '@/utils/media'
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
+const toast = useToast()
 
 const student = ref(null)
 const allAchievements = ref([])
@@ -183,8 +238,23 @@ const completedAchievementIds = ref([])
 const isLoading = ref(false)
 const errorMessage = ref('')
 const loadedImages = ref({avatar: true})
+const shopBalance = ref(0)
+const showBalanceDialog = ref(false)
+const balanceDraft = ref(0)
+const isSavingBalance = ref(false)
+const shopOrders = ref([])
 
 const studentId = ref(route.params.id)
+const canManageBalance = computed(() =>
+    authStore.roleName === 'admin' || authStore.roleName === 'supervisor'
+)
+const isOwnProfile = computed(() =>
+    Number(authStore.userId) === Number(studentId.value)
+)
+const canSeeOrders = computed(() => canManageBalance.value || isOwnProfile.value)
+const receivedOrders = computed(() =>
+    shopOrders.value.filter((o) => isReceivedStatus(o.deliveryStatus))
+)
 
 // Получение всех данных
 const loadStudentData = async () => {
@@ -217,6 +287,24 @@ const loadStudentData = async () => {
     allAchievements.value.forEach((achievement) => {
       loadedImages.value[achievement.id] = true
     })
+
+    if (canManageBalance.value) {
+      const balanceResponse = await api.get(`/api/balance/${studentId.value}`)
+      shopBalance.value = typeof balanceResponse.data === 'number'
+          ? balanceResponse.data
+          : Number(balanceResponse.data) || 0
+    }
+
+    if (canSeeOrders.value) {
+      try {
+        const ordersResponse = isOwnProfile.value
+            ? await api.get('/api/orders')
+            : await api.get('/api/orders/all', { params: { userId: studentId.value } })
+        shopOrders.value = ordersResponse.data || []
+      } catch {
+        shopOrders.value = []
+      }
+    }
   } catch (error) {
     errorMessage.value =
         error.message || 'Ошибка при загрузке данных студента'
@@ -258,6 +346,32 @@ const handleImageError = (field) => {
 // Возвращение назад
 const goBack = () => {
   router.back()
+}
+
+const openBalanceDialog = () => {
+  balanceDraft.value = shopBalance.value
+  showBalanceDialog.value = true
+}
+
+const saveBalance = async () => {
+  isSavingBalance.value = true
+  try {
+    const { data } = await api.patch(`/api/balance/${studentId.value}`, {
+      balance: Number(balanceDraft.value) || 0,
+    })
+    shopBalance.value = typeof data === 'number' ? data : Number(data) || 0
+    showBalanceDialog.value = false
+    toast.add({ severity: 'success', summary: 'Баланс обновлён', life: 2500 })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: error.response?.data || error.message,
+      life: 4000,
+    })
+  } finally {
+    isSavingBalance.value = false
+  }
 }
 
 onMounted(async () => {

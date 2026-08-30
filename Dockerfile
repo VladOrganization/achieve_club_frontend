@@ -3,6 +3,8 @@ FROM node:20-alpine AS builder
 
 ARG VITE_API_URL=https://byteschool.online
 ARG VITE_API_PORT=5001
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_API_PORT=$VITE_API_PORT
 
 WORKDIR /app
 
