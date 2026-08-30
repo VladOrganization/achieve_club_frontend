@@ -22,7 +22,7 @@ meta:
       <div v-if="!isLoading && student" class="space-y-6">
         <!-- Карточка профиля -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="h-32 bg-gradient-to-r from-brand-500 to-brand-800"></div>
+          <div class="h-32 bg-gradient-to-r from-accent-400 to-accent-600"></div>
           <div class="px-6 pb-6">
             <div class="flex flex-col md:flex-row md:items-end gap-6 -mt-16 mb-6">
               <!-- Аватарка -->
@@ -238,7 +238,7 @@ meta:
                           :class="[
                           'text-white px-3 py-2 rounded-lg shadow-md text-center',
                           selectedAchievements.includes(achievement.id)
-                            ? 'bg-gradient-to-r from-brand-500 to-brand-700'
+                            ? 'bg-gradient-to-r from-accent-500 to-accent-600'
                             : 'bg-gray-400'
                         ]"
                       >
@@ -262,7 +262,7 @@ meta:
                           'inline-block px-3 py-1 rounded-full text-xs font-bold',
                           selectedAchievements.includes(achievement.id)
                             ? 'bg-brand-500 text-white'
-                            : 'bg-canvas0 text-white'
+                            : 'bg-gray-500 text-white'
                         ]"
                       >
                         {{

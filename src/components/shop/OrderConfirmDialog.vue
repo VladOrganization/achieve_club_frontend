@@ -7,7 +7,7 @@
       class="w-full max-w-lg"
       @hide="onHide"
       :pt="{
-        header: { class: 'bg-gradient-to-r from-brand-500 to-brand-800 text-white border-0 rounded-t-xl' },
+        header: { class: 'bg-gradient-to-r from-accent-400 to-accent-600 text-white border-0 rounded-t-xl' },
         title: { class: 'text-white font-bold' }
       }"
   >

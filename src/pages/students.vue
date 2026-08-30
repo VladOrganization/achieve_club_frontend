@@ -141,7 +141,7 @@ meta:
                   :show-value="false"
                   :pt="{
                   root: { class: 'h-1 bg-gray-200' },
-                  value: { class: 'bg-gradient-to-r from-brand-500 to-brand-800' }
+                  value: { class: 'bg-gradient-to-r from-accent-400 to-accent-600' }
                 }"
               />
             </div>
@@ -204,7 +204,7 @@ meta:
                   :show-value="false"
                   :pt="{
                   root: { class: 'h-2 bg-gray-200' },
-                  value: { class: 'bg-gradient-to-r from-brand-500 to-brand-800' }
+                  value: { class: 'bg-gradient-to-r from-accent-400 to-accent-600' }
                 }"
               />
             </div>
