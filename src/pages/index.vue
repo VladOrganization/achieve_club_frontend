@@ -316,7 +316,7 @@ meta:
       <Transition name="slide-up">
         <div
             v-if="selectedAchievements.length > 0"
-            class="fixed bottom-8 right-8 flex flex-col gap-2 z-50"
+            class="fixed bottom-36 right-8 flex flex-col gap-2 z-50"
         >
           <div class="bg-white rounded-lg shadow-lg p-4 border-l-4 border-brand-600">
             <p class="text-sm font-medium text-gray-900 mb-3">

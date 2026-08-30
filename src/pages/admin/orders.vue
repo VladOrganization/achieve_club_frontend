@@ -192,13 +192,22 @@ const load = async () => {
   }
 }
 
+const applyStatus = (order, status) => {
+  if (!status) return
+  const target = orders.value.find((item) => item.id === order.id)
+  if (!target) return
+  target.deliveryStatusId = status.id
+  target.deliveryStatus = status.title
+  target.deliveryColor = status.color
+}
+
 const changeStatus = async (order, statusId) => {
   const id = Number(statusId)
   if (id === order.deliveryStatusId) return
   updatingId.value = order.id
   try {
     await api.patch(`/api/orders/${order.id}/status`, { statusId: id })
-    await load()
+    applyStatus(order, statuses.value.find((status) => status.id === id))
     toast.add({ severity: 'success', summary: 'Статус обновлён', life: 2500 })
   } catch (error) {
     toast.add({
@@ -228,7 +237,12 @@ const cancelOrder = async (order) => {
   updatingId.value = order.id
   try {
     await api.post(`/api/orders/${order.id}/cancel`)
-    await load()
+    const cancelled = statuses.value.find((status) => isCancelledStatus(status.title))
+    if (cancelled) {
+      applyStatus(order, cancelled)
+    } else {
+      await load()
+    }
     toast.add({ severity: 'success', summary: 'Заказ отменён, XP возвращены', life: 3000 })
   } catch (error) {
     toast.add({
