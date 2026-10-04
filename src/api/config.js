@@ -2,3 +2,5 @@ export const API_CONFIG = {
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost',
     port: import.meta.env.VITE_API_PORT || 5000,
 };
+
+export const apiUrl = (path) => `${API_CONFIG.baseURL}:${API_CONFIG.port}/${path}`

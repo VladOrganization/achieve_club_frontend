@@ -49,7 +49,7 @@
     <!-- Шаг 2: Ввод кода подтверждения -->
     <div v-if="currentStep === 2" class="space-y-4">
       <p class="text-gray-600 text-sm">
-        Мы отправили код подтверждения. Попросите его у вашего тренера
+        Мы отправили код подтверждения на почту {{ form.email }}. Проверьте входящие письма (возможно, оно попало в «Спам»)
       </p>
 
       <div>
@@ -147,6 +147,9 @@
           <li :class="{ 'text-green-600': /[0-9]/.test(form.newPassword) }">
             ✓ Минимум одна цифра
           </li>
+          <li :class="{ 'text-green-600': form.newPassword.length > 0 && form.newPassword === form.confirmPassword }">
+            ✓ Пароль и подтверждение должны совпадать
+          </li>
         </ul>
       </div>
 
@@ -181,6 +184,7 @@
           v-if="currentStep === 3"
           label="Установить пароль"
           :loading="isLoading"
+          :disabled="!isPasswordValid"
           @click="resetPassword"
       />
     </template>
@@ -188,7 +192,7 @@
 </template>
 
 <script setup>
-import {ref, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
@@ -273,16 +277,14 @@ const submitEmail = async () => {
         headers: {'Content-Type': 'application/patch+json'}
       }
   ).then((res) => {
-    successMessage.value = 'Код отправлен. Попросите его у вашего тренера'
+    successMessage.value = `Код отправлен на почту ${form.value.email}. Проверьте входящие письма (возможно, оно попало в «Спам»)`
     currentStep.value = 2
     startResendCountdown()
   }).catch((error) => {
     if (error.response.data == 'email') {
       errorMessage.value = 'Такой email не зарегистрирован'
     } else if (error.response.data == 'timeout') {
-      successMessage.value = 'Код отправлен. Попросите его у вашего тренера'
-      currentStep.value = 2
-      startResendCountdown()
+      errorMessage.value = 'Подождите минуту перед повторной отправкой'
     } else {
       errorMessage.value = 'Ошибка при отправке кода'
     }
@@ -356,8 +358,7 @@ const resendCode = async () => {
     if (error.response.data == 'email') {
       errorMessage.value = 'Такой email не зарегистрирован'
     } else if (error.response.data == 'timeout') {
-      successMessage.value = 'Код повторно отправлен'
-      startResendCountdown()
+      errorMessage.value = 'Подождите минуту перед повторной отправкой'
     } else {
       errorMessage.value = 'Ошибка при отправке кода'
     }
@@ -365,6 +366,13 @@ const resendCode = async () => {
     isLoading.value = false
   })
 }
+
+const isPasswordValid = computed(() =>
+  form.value.newPassword.length >= 8 &&
+  /[A-Z]/.test(form.value.newPassword) &&
+  /[0-9]/.test(form.value.newPassword) &&
+  form.value.newPassword === form.value.confirmPassword
+)
 
 // Шаг 3: Установка нового пароля
 const validatePassword = () => {

@@ -19,7 +19,9 @@ export default defineConfig({
                 PrimeVueResolver()
             ]
         }),
-        vueDevTools(),
+        vueDevTools({
+            launchEditor: 'webstorm',
+        })
     ],
     resolve: {
         alias: {

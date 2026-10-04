@@ -28,8 +28,8 @@ requiresAuth: true
               <!-- Аватарка -->
               <div class="relative">
                 <img
-                    v-if="loadedImages.avatar"
-                    :src="`https://byteschool.online:5001/${student.avatar}`"
+                    v-if="student.avatar && loadedImages.avatar"
+                    :src="apiUrl(student.avatar)"
                     :alt="`${student.firstName} ${student.lastName}`"
                     class="w-32 h-32 rounded-lg shadow-lg object-cover border-4 border-white"
                     @error="handleImageError('avatar')"
@@ -128,7 +128,7 @@ requiresAuth: true
                       class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center flex-shrink-0 border-2 border-green-300">
                     <img
                         v-if="loadedImages[achievement.id]"
-                        :src="`https://byteschool.online:5001/${achievement.logoURL}`"
+                        :src="apiUrl(achievement.logoURL)"
                         :alt="achievement.title"
                         class="w-12 h-12 object-contain"
                         @error="handleImageError(achievement.id)"
@@ -173,6 +173,7 @@ import Message from 'primevue/message'
 import Skeleton from 'primevue/skeleton'
 import ProgressBar from 'primevue/progressbar'
 import api from '@/api/client'
+import {apiUrl} from '@/api/config'
 
 const router = useRouter()
 const route = useRoute()

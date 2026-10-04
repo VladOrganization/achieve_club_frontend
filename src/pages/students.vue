@@ -103,8 +103,8 @@ meta:
           <!-- Фото -->
           <div class="relative overflow-hidden w-24 h-24 bg-gray-200 flex-shrink-0">
             <img
-                v-if="loadedImages[student.id]"
-                :src="`https://byteschool.online:5001/${student.avatar}`"
+                v-if="student.avatar && loadedImages[student.id]"
+                :src="apiUrl(student.avatar)"
                 :alt="`${student.firstName} ${student.lastName}`"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 @error="handleImageError(student.id)"
@@ -118,7 +118,7 @@ meta:
           </div>
 
           <!-- Информация -->
-          <div class="p-3 flex-1 flex flex-col justify-between">
+          <div class="p-2 flex-1 flex flex-col justify-between">
             <div>
               <h3 class="text-base font-bold text-gray-900 truncate">
                 {{ student.firstName }}
@@ -163,8 +163,8 @@ meta:
           <!-- Фото -->
           <div class="relative overflow-hidden h-48 bg-gray-200">
             <img
-                v-if="loadedImages[student.id]"
-                :src="`https://byteschool.online:5001/${student.avatar}`"
+                v-if="student.avatar && loadedImages[student.id]"
+                :src="apiUrl(student.avatar)"
                 :alt="`${student.firstName} ${student.lastName}`"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 @error="handleImageError(student.id)"
@@ -250,6 +250,7 @@ import Skeleton from 'primevue/skeleton'
 import ProgressBar from 'primevue/progressbar'
 import Paginator from 'primevue/paginator'
 import api from '@/api/client'
+import {apiUrl} from '@/api/config'
 
 const router = useRouter()
 

@@ -29,7 +29,8 @@ const authStore = useAuthStore()
 
 const navItems = ref([
   {title: 'home', path: '/', label: 'Главная', icon: 'pi pi-home'},
-  {title: 'students', path: '/students', label: 'Топ', icon: 'pi pi-users'}
+  {title: 'students', path: '/students', label: 'Топ', icon: 'pi pi-users'},
+  {title: 'shop', path: '/shop', label: 'Магазин', icon: 'pi pi-shopping-bag'}
 ])
 
 onMounted(() => {
@@ -38,8 +39,15 @@ onMounted(() => {
   if (role === 'admin' || role === 'supervisor') {
     navItems.value = [
       ...navItems.value,
-      {title: 'scanner', path: '/scanner', label: 'Сканер', icon: 'pi pi-qrcode'},
-      {title: 'codes', path: '/codes', label: 'Коды', icon: 'pi pi-key'}
+      {title: 'scanner', path: '/scanner', label: 'Сканер', icon: 'pi pi-qrcode'}
+    ]
+  }
+
+  if (role === 'admin') {
+    navItems.value = [
+      ...navItems.value,
+      {title: 'admin-products', path: '/admin/products', label: 'Товары', icon: 'pi pi-box'},
+      {title: 'admin-orders', path: '/admin/orders', label: 'Заказы', icon: 'pi pi-shopping-cart'}
     ]
   }
 })

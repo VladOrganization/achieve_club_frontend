@@ -10,10 +10,10 @@
       <!-- Индикатор этапов -->
       <div class="flex justify-between items-center mb-8">
         <div
-            v-for="step in 3"
+            v-for="step in 4"
             :key="step"
             class="flex items-center"
-            :class="[step == 3 ? 'w-12' : 'w-full']"
+            :class="[step == 4 ? 'w-12' : 'w-full']"
         >
           <div
               :class="[
@@ -26,7 +26,7 @@
             {{ step }}
           </div>
           <div
-              v-if="step < 3"
+              v-if="step < 4"
               :class="[
               'flex-1 h-1 mx-2',
               currentStep > step ? 'bg-indigo-600' : 'bg-gray-300',
@@ -101,99 +101,19 @@
           <Button
               label="Далее"
               class="flex-1"
+              :disabled="!personalDataValid"
+              :loading="isLoading"
               @click="nextStep"
           />
         </div>
       </form>
 
-      <!-- Этап 2: Установка пароля -->
+      <!-- Этап 2: Подтверждение email -->
       <form v-if="currentStep === 2" @submit.prevent="nextStep" class="space-y-4">
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-            Пароль *
-          </label>
-          <Password
-              id="password"
-              v-model="form.password"
-              placeholder="••••••••"
-              toggle-mask
-              class="w-full"
-              input-class="w-full"
-              :feedback="false"
-          />
-          <p v-if="errors.password" class="text-red-500 text-sm mt-1">
-            {{ errors.password }}
-          </p>
-
-          <!-- Требования к паролю -->
-          <div class="bg-blue-50 p-3 rounded-lg mt-3">
-            <p class="text-xs font-medium text-gray-700 mb-2">Требования:</p>
-            <ul class="text-xs text-gray-600 space-y-1">
-              <li :class="{ 'text-green-600': form.password.length >= 8 }">
-                {{ form.password.length >= 8 ? '✓' : '○' }} Минимум 8 символов
-              </li>
-              <li :class="{ 'text-green-600': /[A-Z]/.test(form.password) }">
-                {{ /[A-Z]/.test(form.password) ? '✓' : '○' }} Заглавная буква
-              </li>
-              <li :class="{ 'text-green-600': /[a-z]/.test(form.password) }">
-                {{ /[a-z]/.test(form.password) ? '✓' : '○' }} Строчная буква
-              </li>
-              <li :class="{ 'text-green-600': /[0-9]/.test(form.password) }">
-                {{ /[0-9]/.test(form.password) ? '✓' : '○' }} Цифра
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
-            Подтверждение пароля *
-          </label>
-          <Password
-              id="confirmPassword"
-              v-model="form.confirmPassword"
-              placeholder="••••••••"
-              toggle-mask
-              class="w-full"
-              input-class="w-full"
-              :feedback="false"
-          />
-          <p v-if="errors.confirmPassword" class="text-red-500 text-sm mt-1">
-            {{ errors.confirmPassword }}
-          </p>
-        </div>
-
-        <Message
-            v-if="errorMessage"
-            severity="error"
-            class="mt-4"
-            @close="errorMessage = ''">
-          {{ errorMessage }}
-        </Message>
-
-        <div class="flex gap-3 mt-6">
-          <Button
-              label="Назад"
-              severity="secondary"
-              class="flex-1"
-              @click="previousStep"
-          />
-          <Button
-              label="Далее"
-              class="flex-1"
-              @click="nextStep"
-          />
-        </div>
-      </form>
-
-      <!-- Этап 3: Подтверждение email -->
-      <form v-if="currentStep === 3" @submit.prevent="completeRegistration" class="space-y-4">
         <div class="bg-blue-50 p-4 rounded-lg mb-4 text-center">
           <p class="text-sm text-gray-700">
-            Мы отправили код подтверждения на:
-            <br/>
+            Подтвердите свою почту, введя код из письма
           </p>
-          <p class="font-semibold text-indigo-600">{{ form.email }}</p>
         </div>
 
         <div>
@@ -206,7 +126,7 @@
               placeholder="0000"
               class="w-full text-center text-2xl tracking-widest"
               maxlength="6"
-              @keyup.enter="completeRegistration"
+              @keyup.enter="nextStep"
           />
           <p v-if="errors.verificationCode" class="text-red-500 text-sm mt-1">
             {{ errors.verificationCode }}
@@ -252,16 +172,176 @@
               @click="previousStep"
           />
           <Button
+              label="Далее"
+              class="flex-1"
+              :disabled="form.verificationCode.length !== 4"
+              @click="nextStep"
+          />
+        </div>
+      </form>
+
+      <!-- Этап 3: Установка пароля -->
+      <form v-if="currentStep === 3" @submit.prevent="completeRegistration" class="space-y-4">
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            Пароль *
+          </label>
+          <Password
+              id="password"
+              v-model="form.password"
+              placeholder="••••••••"
+              toggle-mask
+              class="w-full"
+              input-class="w-full"
+              :feedback="false"
+          />
+          <p v-if="errors.password" class="text-red-500 text-sm mt-1">
+            {{ errors.password }}
+          </p>
+
+          <!-- Требования к паролю -->
+          <div class="bg-blue-50 p-3 rounded-lg mt-3">
+            <p class="text-xs font-medium text-gray-700 mb-2">Требования:</p>
+            <ul class="text-xs text-gray-600 space-y-1">
+              <li class="flex items-center gap-1.5" :class="{ 'text-green-600': form.password.length >= 8 }">
+                <i :class="['pi', form.password.length >= 8 ? 'pi-check-circle' : 'pi-circle']"></i>
+                <span>Минимум 8 символов</span>
+              </li>
+              <li class="flex items-center gap-1.5" :class="{ 'text-green-600': /[A-Z]/.test(form.password) }">
+                <i :class="['pi', /[A-Z]/.test(form.password) ? 'pi-check-circle' : 'pi-circle']"></i>
+                <span>Заглавная буква</span>
+              </li>
+              <li class="flex items-center gap-1.5" :class="{ 'text-green-600': /[a-z]/.test(form.password) }">
+                <i :class="['pi', /[a-z]/.test(form.password) ? 'pi-check-circle' : 'pi-circle']"></i>
+                <span>Строчная буква</span>
+              </li>
+              <li class="flex items-center gap-1.5" :class="{ 'text-green-600': /[0-9]/.test(form.password) }">
+                <i :class="['pi', /[0-9]/.test(form.password) ? 'pi-check-circle' : 'pi-circle']"></i>
+                <span>Цифра</span>
+              </li>
+              <li class="flex items-center gap-1.5" :class="{ 'text-green-600': passwordsMatch }">
+                <i :class="['pi', passwordsMatch ? 'pi-check-circle' : 'pi-circle']"></i>
+                <span>Пароль и подтверждение совпадают</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+            Подтверждение пароля *
+          </label>
+          <Password
+              id="confirmPassword"
+              v-model="form.confirmPassword"
+              placeholder="••••••••"
+              toggle-mask
+              class="w-full"
+              input-class="w-full"
+              :feedback="false"
+          />
+          <p v-if="errors.confirmPassword" class="text-red-500 text-sm mt-1">
+            {{ errors.confirmPassword }}
+          </p>
+        </div>
+
+        <Message
+            v-if="errorMessage"
+            severity="error"
+            class="mt-4"
+            @close="errorMessage = ''">
+          {{ errorMessage }}
+        </Message>
+
+        <div class="flex gap-3 mt-6">
+          <Button
+              label="Назад"
+              severity="secondary"
+              class="flex-1"
+              @click="previousStep"
+          />
+          <Button
               label="Завершить"
               class="flex-1"
+              :disabled="!passwordRequirementsMet"
               :loading="isLoading"
               @click="completeRegistration"
           />
         </div>
       </form>
 
+      <!-- Этап 4: Аватарка (можно пропустить) -->
+      <div v-if="currentStep === 4" class="space-y-4">
+        <div class="bg-blue-50 p-4 rounded-lg text-center">
+          <p class="text-sm text-gray-700">
+            Добавьте аватарку — этот шаг можно пропустить и сделать позже
+          </p>
+        </div>
+
+        <div class="flex flex-col items-center gap-3">
+          <button
+              type="button"
+              class="group relative w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center cursor-pointer"
+              :disabled="isLoading"
+              aria-label="Выбрать фото"
+              @click="avatarInput.click()"
+          >
+            <img
+                v-if="avatarPreview"
+                :src="avatarPreview"
+                alt="Предпросмотр аватарки"
+                class="w-full h-full object-cover"
+            />
+            <i v-else class="pi pi-user text-7xl text-gray-400"></i>
+            <span class="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <i class="pi pi-camera text-3xl"></i>
+            </span>
+          </button>
+
+          <input
+              ref="avatarInput"
+              type="file"
+              accept=".png,.jpg,.jpeg,.webp,.bmp,.gif"
+              class="hidden"
+              @change="onAvatarSelected"
+          />
+          <Button
+              :label="avatarFile ? 'Выбрать другое фото' : 'Выбрать фото'"
+              icon="pi pi-image"
+              severity="secondary"
+              :disabled="isLoading"
+              @click="avatarInput.click()"
+          />
+        </div>
+
+        <Message
+            v-if="errorMessage"
+            severity="error"
+            class="mt-4"
+            @close="errorMessage = ''">
+          {{ errorMessage }}
+        </Message>
+
+        <div class="flex gap-3 mt-6">
+          <Button
+              label="Пропустить"
+              severity="secondary"
+              class="flex-1"
+              :disabled="isLoading"
+              @click="finishRegistration"
+          />
+          <Button
+              label="Загрузить"
+              class="flex-1"
+              :disabled="!avatarFile"
+              :loading="isLoading"
+              @click="uploadAvatar"
+          />
+        </div>
+      </div>
+
       <!-- Ссылка на вход -->
-      <div class="mt-6 text-center text-sm text-gray-600">
+      <div v-if="currentStep < 4" class="mt-6 text-center text-sm text-gray-600">
         <span>Уже есть аккаунт? </span>
         <router-link
             to="/login"
@@ -275,7 +355,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
@@ -293,6 +373,9 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const resendCountdown = ref(0)
+const avatarInput = ref(null)
+const avatarFile = ref(null)
+const avatarPreview = ref('')
 
 const form = ref({
   firstName: '',
@@ -301,6 +384,28 @@ const form = ref({
   password: '',
   confirmPassword: '',
   verificationCode: '',
+})
+
+const passwordsMatch = computed(
+    () => form.value.password.length > 0 && form.value.password === form.value.confirmPassword
+)
+
+// Формат xxxxx@xxx.xxx
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const personalDataValid = computed(() =>
+    form.value.firstName.trim().length >= 2
+    && form.value.lastName.trim().length >= 2
+    && EMAIL_REGEX.test(form.value.email)
+)
+
+const passwordRequirementsMet = computed(() => {
+  const password = form.value.password
+  return password.length >= 8
+      && /[A-Z]/.test(password)
+      && /[a-z]/.test(password)
+      && /[0-9]/.test(password)
+      && passwordsMatch.value
 })
 
 const errors = ref({
@@ -344,7 +449,7 @@ const validateStep1 = () => {
   if (!form.value.email) {
     errors.value.email = 'Email обязателен'
     isValid = false
-  } else if (!form.value.email.includes('@')) {
+  } else if (!EMAIL_REGEX.test(form.value.email)) {
     errors.value.email = 'Введите корректный email'
     isValid = false
   }
@@ -352,8 +457,8 @@ const validateStep1 = () => {
   return isValid
 }
 
-// Валидация этапа 2
-const validateStep2 = () => {
+// Валидация этапа 3 (пароль)
+const validateStep3 = () => {
   errors.value.password = ''
   errors.value.confirmPassword = ''
 
@@ -384,8 +489,8 @@ const validateStep2 = () => {
   return isValid
 }
 
-// Валидация этапа 3
-const validateStep3 = () => {
+// Валидация этапа 2 (код)
+const validateStep2 = () => {
   errors.value.verificationCode = ''
 
   if (!form.value.verificationCode) {
@@ -410,54 +515,26 @@ const nextStep = async () => {
     isLoading.value = true
 
     try {
-      // Проверка существования email (API запрос)
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // const response = await fetch('/api/check-email', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email: form.value.email }),
-      // })
-
-      currentStep.value = 2
-    } catch (error) {
-      errorMessage.value = error.message || 'Ошибка при проверке email'
-    } finally {
-      isLoading.value = false
-    }
-  } else if (currentStep.value === 2) {
-    if (!validateStep2()) return
-
-    isLoading.value = true
-
-    try {
-      // Отправка данных регистрации и отправка кода
+      // Отправка кода подтверждения на почту
       await apiClient.post('api/email/proof_email', `"${form.value.email}"`,
           {
             headers: {'Content-Type': 'application/patch+json'}
           }
       )
 
-      // const response = await fetch('/api/register-init', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     firstName: form.value.firstName,
-      //     lastName: form.value.lastName,
-      //     email: form.value.email,
-      //     password: form.value.password,
-      //   }),
-      // })
-
-      successMessage.value = 'Код подтверждения отправлен на вашу почту'
-      currentStep.value = 3
+      successMessage.value = `Код подтверждения отправлен на почту ${form.value.email}. Проверьте входящие письма (возможно, оно попало в «Спам»)`
+      currentStep.value = 2
       startResendCountdown()
-    } catch
-        (error) {
-      errorMessage.value = error.message || 'Ошибка при отправке кода'
+    } catch (error) {
+      errorMessage.value = errorText(error, 'Ошибка при отправке кода')
     } finally {
       isLoading.value = false
     }
+  } else if (currentStep.value === 2) {
+    if (!validateStep2()) return
+
+    successMessage.value = ''
+    currentStep.value = 3
   }
 }
 
@@ -479,12 +556,23 @@ const startResendCountdown = () => {
   }, 1000)
 }
 
+const errorText = (error, fallback) => {
+  const data = error.response?.data
+  if (data === 'timeout') return 'Подождите минуту перед повторной отправкой'
+  if (data === 'email') return 'Пользователь с такой почтой уже зарегистрирован'
+  return fallback
+}
+
 const resendCode = async () => {
   isLoading.value = true
   errorMessage.value = ''
 
   try {
-    await apiClient.post('/email/proof_email', form.value.email)
+    await apiClient.post('api/email/proof_email', `"${form.value.email}"`,
+        {
+          headers: {'Content-Type': 'application/patch+json'}
+        }
+    )
 
     // const response = await fetch('/api/resend-code', {
     //   method: 'POST',
@@ -495,7 +583,7 @@ const resendCode = async () => {
     successMessage.value = 'Код повторно отправлен на вашу почту'
     startResendCountdown()
   } catch (error) {
-    errorMessage.value = 'Ошибка при повторной отправке'
+    errorMessage.value = errorText(error, 'Ошибка при повторной отправке')
   } finally {
     isLoading.value = false
   }
@@ -513,17 +601,62 @@ const completeRegistration = async () => {
     lastName: form.value.lastName,
     emailAddress: form.value.email,
     password: form.value.password,
-    proofCode: form.value.verificationCode,
-    avatarURL: "default-avatar.webp"
+    proofCode: form.value.verificationCode
   }).then((response) => {
     console.log('login', response.data)
     authStore.setAuthData(response.data.userId, response.data.authToken, response.data.refreshToken, response.data.role)
-    router.push('/')
-  }).catch(() => {
+    currentStep.value = 4
+  }).catch((error) => {
     errorMessage.value = error.message || 'Ошибка при подтверждении кода'
   }).finally(() => {
     isLoading.value = false
   })
+}
+
+const MAX_AVATAR_SIZE = 10_000_000
+
+const onAvatarSelected = (event) => {
+  const file = event.target.files?.[0]
+  event.target.value = ''
+  if (!file) return
+
+  errorMessage.value = ''
+
+  if (!file.type.startsWith('image/')) {
+    errorMessage.value = 'Выберите файл изображения'
+    return
+  }
+  if (file.size > MAX_AVATAR_SIZE) {
+    errorMessage.value = 'Файл слишком большой (максимум 10 МБ)'
+    return
+  }
+
+  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
+  avatarFile.value = file
+  avatarPreview.value = URL.createObjectURL(file)
+}
+
+const finishRegistration = () => {
+  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
+  router.push('/')
+}
+
+const uploadAvatar = async () => {
+  if (!avatarFile.value) return
+
+  errorMessage.value = ''
+  isLoading.value = true
+
+  try {
+    const data = new FormData()
+    data.append('file', avatarFile.value)
+    await apiClient.post('/api/avatar', data, {timeout: 60000})
+    finishRegistration()
+  } catch (error) {
+    errorMessage.value = error.response?.data?.toString() || 'Не удалось загрузить аватарку'
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const goToLogin = () => {
