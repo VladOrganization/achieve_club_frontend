@@ -106,6 +106,13 @@
               @click="nextStep"
           />
         </div>
+
+        <div class="flex items-center gap-3 my-5 text-gray-400 text-sm">
+          <div class="flex-1 h-px bg-gray-200"></div>
+          <span>или</span>
+          <div class="flex-1 h-px bg-gray-200"></div>
+        </div>
+        <GoogleAuthButton mode="registration"/>
       </form>
 
       <!-- Этап 2: Подтверждение email -->
@@ -364,6 +371,7 @@ import Message from 'primevue/message'
 import apiClient from "@/api/client.js";
 import api from "@/api/client.js";
 import {useAuthStore} from "@/stores/auth.js";
+import GoogleAuthButton from "@/components/GoogleAuthButton.vue";
 
 const router = useRouter()
 const authStore = useAuthStore()

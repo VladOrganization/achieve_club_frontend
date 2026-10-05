@@ -1,12 +1,32 @@
 import {defineStore} from 'pinia';
 import {ref, computed} from 'vue';
 
+// "Запомнить меня": true -> localStorage, false -> sessionStorage (до закрытия вкладки)
+const rememberStorage = {
+    getItem: (key) => sessionStorage.getItem(key) ?? localStorage.getItem(key),
+    setItem: (key, value) => {
+        let remember = true;
+        try {
+            remember = JSON.parse(value).remember !== false;
+        } catch {
+        }
+        const [target, other] = remember ? [localStorage, sessionStorage] : [sessionStorage, localStorage];
+        target.setItem(key, value);
+        other.removeItem(key);
+    },
+    removeItem: (key) => {
+        sessionStorage.removeItem(key);
+        localStorage.removeItem(key);
+    },
+};
+
 export const useAuthStore = defineStore('auth', () => {
     // State
     const userId = ref(null);
     const authToken = ref(null);
     const refreshToken = ref(null);
     const userRole = ref(null);
+    const remember = ref(true);
 
     // Getters
     const isAuthenticated = computed(() => !!refreshToken.value);
@@ -24,8 +44,10 @@ export const useAuthStore = defineStore('auth', () => {
         id,
         token,
         refresh,
-        role
+        role,
+        rememberMe = true
     ) => {
+        remember.value = rememberMe;
         userId.value = id;
         authToken.value = token;
         refreshToken.value = refresh;
@@ -42,6 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
         authToken.value = null;
         refreshToken.value = null;
         userRole.value = null;
+        remember.value = true;
     };
 
     return {
@@ -49,6 +72,7 @@ export const useAuthStore = defineStore('auth', () => {
         authToken,
         refreshToken,
         userRole,
+        remember,
         isAuthenticated,
         roleName,
         setAuthData,
@@ -59,8 +83,8 @@ export const useAuthStore = defineStore('auth', () => {
     persist: {
         key: 'auth-data',
         enabled: true,
-        storage: localStorage,
-        pick: ['userId', 'refreshToken', 'userRole'],
+        storage: rememberStorage,
+        pick: ['userId', 'refreshToken', 'userRole', 'remember'],
         omit: ['authToken']
     }
 });

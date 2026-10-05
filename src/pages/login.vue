@@ -69,6 +69,13 @@
         />
       </form>
 
+      <div class="flex items-center gap-3 my-5 text-gray-400 text-sm">
+        <div class="flex-1 h-px bg-gray-200"></div>
+        <span>или</span>
+        <div class="flex-1 h-px bg-gray-200"></div>
+      </div>
+      <GoogleAuthButton mode="login"/>
+
       <!-- Дополнительные ссылки -->
       <div class="mt-6 flex items-center justify-between text-sm">
         <Button link @click="showForgotPasswordModal = true">
@@ -83,10 +90,9 @@
       <Message
           v-if="globalError"
           severity="error"
-          :text="globalError"
           class="mt-4"
           @close="globalError = ''"
-      />
+      >{{ globalError }}</Message>
     </div>
   </div>
 </template>
@@ -100,6 +106,7 @@ import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Message from 'primevue/message'
 import ForgotPasswordModal from "@/components/ForgotPasswordModal.vue";
+import GoogleAuthButton from "@/components/GoogleAuthButton.vue";
 import api from '@/api/client'
 import {useAuthStore} from "@/stores/auth.js";
 
@@ -163,10 +170,10 @@ const handleLogin = async () => {
       }
   ).then((response) => {
     console.log('login', response.data)
-    authStore.setAuthData(response.data.userId, response.data.authToken, response.data.refreshToken, response.data.role)
+    authStore.setAuthData(response.data.userId, response.data.authToken, response.data.refreshToken, response.data.role, form.value.rememberMe)
     router.push('/')
   }).catch(() => {
-    globalError.value = error.message || 'Ошибка при входе. Проверьте учетные данные.'
+    globalError.value = 'Ошибка при входе. Проверьте учетные данные.'
   }).finally(() => {
     isLoading.value = false
   })

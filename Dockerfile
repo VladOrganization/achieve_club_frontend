@@ -3,6 +3,7 @@ FROM node:20-alpine AS builder
 
 ARG VITE_API_URL=https://app.byteschool.by
 ARG VITE_API_PORT=8080
+ARG VITE_GOOGLE_CLIENT_ID
 
 WORKDIR /app
 
