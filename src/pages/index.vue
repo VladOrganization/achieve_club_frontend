@@ -49,16 +49,26 @@ meta:
                 </h1>
               </div>
 
-              <!-- Кнопка назад -->
-              <Button
-                  icon="pi pi-sign-out"
-                  label="Выйти"
-                  severity="secondary"
-                  @click="signOut"
-                  :pt="{
-                  root: { class: 'px-4 py-2 rounded-lg' }
-                }"
-              />
+              <div class="flex gap-2">
+                <Button
+                    icon="pi pi-pencil"
+                    label="Редактировать профиль"
+                    severity="secondary"
+                    @click="showEditModal = true"
+                    :pt="{
+                    root: { class: 'px-4 py-2 rounded-lg' }
+                  }"
+                />
+                <Button
+                    icon="pi pi-sign-out"
+                    label="Выйти"
+                    severity="secondary"
+                    @click="signOut"
+                    :pt="{
+                    root: { class: 'px-4 py-2 rounded-lg' }
+                  }"
+                />
+              </div>
             </div>
 
             <!-- Статистика -->
@@ -316,6 +326,17 @@ meta:
         </div>
       </Transition>
 
+      <!-- Модальное окно редактирования профиля -->
+      <EditProfileModal
+          v-if="student"
+          v-model="showEditModal"
+          :email="student.email"
+          :first-name="student.firstName"
+          :last-name="student.lastName"
+          :current-avatar="student.avatar"
+          @saved="refreshProfile"
+      />
+
       <!-- Модальное окно подтверждения -->
       <template v-if="student">
         <CompleteAchievementsModal
@@ -343,6 +364,7 @@ import TabPanel from 'primevue/tabpanel'
 import ProgressBar from 'primevue/progressbar'
 import Checkbox from 'primevue/checkbox'
 import CompleteAchievementsModal from '@/components/CompleteAchievementsModal.vue'
+import EditProfileModal from '@/components/EditProfileModal.vue'
 import api from '@/api/client'
 import {apiUrl} from '@/api/config'
 import {useAuthStore} from "@/stores/auth.js";
@@ -354,6 +376,7 @@ const allAchievements = ref([])
 const completedAchievementIds = ref([])
 const selectedAchievements = ref([])
 const showModal = ref(false)
+const showEditModal = ref(false)
 const isLoading = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref('')
@@ -491,6 +514,17 @@ const completeSelectedAchievements = async () => {
     console.error('Error completing achievements:', error)
   } finally {
     isSubmitting.value = false
+  }
+}
+
+// Обновить данные профиля после редактирования
+const refreshProfile = async () => {
+  try {
+    const response = await api.get('/api/users/current')
+    student.value = response.data
+    loadedImages.value.avatar = true
+  } catch (error) {
+    console.error('Error refreshing profile:', error)
   }
 }
 
