@@ -4,7 +4,6 @@
       <i class="pi pi-spin pi-spinner mr-2"></i>Подождите...
     </div>
     <div ref="buttonRoot" :class="{ hidden: isLoading }"></div>
-    <p v-if="!CLIENT_ID" class="text-red-500 text-sm">Не задан VITE_GOOGLE_CLIENT_ID</p>
     <Message v-if="error" severity="error" class="w-full" @close="error = ''">{{ error }}</Message>
   </div>
 </template>
@@ -21,7 +20,6 @@ const props = defineProps({
   mode: {type: String, required: true},
 })
 
-const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const GSI_SRC = 'https://accounts.google.com/gsi/client'
 
 const router = useRouter()
@@ -68,15 +66,20 @@ const onCredential = async ({credential}) => {
 }
 
 onMounted(async () => {
-  if (!CLIENT_ID) return
+  let clientId
   try {
-    await loadGsi()
+    // Client ID хранится в env бэкенда
+    const [{data}] = await Promise.all([
+      api.get('/api/auth/google/client-id?api-version=1.1', {skipAuthHeader: true}),
+      loadGsi(),
+    ])
+    clientId = data
   } catch {
     error.value = 'Не удалось загрузить Google. Проверьте соединение.'
     return
   }
   window.google.accounts.id.initialize({
-    client_id: CLIENT_ID,
+    client_id: clientId,
     callback: onCredential,
     use_fedcm_for_prompt: true,
   })
