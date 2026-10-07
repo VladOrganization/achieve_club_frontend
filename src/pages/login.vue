@@ -2,7 +2,7 @@
   <ForgotPasswordModal v-model="showForgotPasswordModal"/>
 
   <div class="min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+    <div class="bg-white rounded-lg shadow-xl p-5 sm:p-8 w-full max-w-md">
       <!-- Заголовок -->
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-stone-800">Вход</h1>
@@ -77,11 +77,11 @@
       <GoogleAuthButton mode="login"/>
 
       <!-- Дополнительные ссылки -->
-      <div class="mt-6 flex items-center justify-between text-sm">
-        <Button link @click="showForgotPasswordModal = true">
+      <div class="mt-6 flex items-center justify-between gap-2 text-sm">
+        <Button link class="!px-0 whitespace-nowrap" @click="showForgotPasswordModal = true">
           Забыли пароль?
         </Button>
-        <Button link @click="router.push('/register')">
+        <Button link class="!px-0 whitespace-nowrap" @click="router.push('/register')">
           Зарегистрироваться
         </Button>
       </div>

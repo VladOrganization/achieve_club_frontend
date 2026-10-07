@@ -58,10 +58,10 @@
         </label>
         <InputText
             id="code"
-            v-model="form.code"
+            :modelValue="form.code"
             placeholder="0000"
             class="w-full"
-            maxlength="6"
+            @update:modelValue="v => form.code = (v ?? '').replace(/\s/g, '').slice(0, 6)"
             @keyup.enter="verifyCode"
         />
         <p v-if="errors.code" class="text-red-500 text-sm mt-1">

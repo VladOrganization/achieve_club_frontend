@@ -26,8 +26,17 @@ meta:
           <ProfileCover/>
           <div class="px-4 pb-4 md:px-6 md:pb-6">
             <div class="flex flex-col md:flex-row md:items-end gap-6 -mt-16 mb-6">
+              <!-- Аватарка и имя: на телефоне в одну строку, на десктопе — часть общей строки -->
+              <div class="flex items-start gap-4 min-w-0 md:contents">
               <!-- Аватарка -->
-              <div class="relative">
+              <div
+                  class="relative group cursor-pointer shrink-0"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Изменить аватарку"
+                  @click="showAvatarModal = true"
+                  @keyup.enter="showAvatarModal = true"
+              >
                 <!-- Рамка для первых четырёх мест в топе (без места — обычная белая обводка) -->
                 <RankFrame :rank="rank" :thickness="4" reserve plain-class="bg-white" class="w-32 h-32 rounded-lg shadow-lg">
                   <div class="w-full h-full rounded-[4px] overflow-hidden">
@@ -38,13 +47,17 @@ meta:
                     />
                   </div>
                 </RankFrame>
+                <div class="absolute inset-0 rounded-lg bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <i class="pi pi-camera text-2xl"></i>
+                </div>
               </div>
 
               <!-- Информация профиля -->
-              <div class="flex-1 min-w-0">
-                <h1 class="text-2xl sm:text-3xl font-bold leading-tight text-stone-900 break-words line-clamp-3">
+              <div class="flex-1 min-w-0 pt-[4.5rem] md:pt-0">
+                <h1 class="text-xl sm:text-3xl font-bold leading-tight text-stone-900 [overflow-wrap:anywhere] line-clamp-4">
                   {{ student.firstName }} {{ student.lastName }}
                 </h1>
+              </div>
               </div>
 
               <div class="flex gap-2">
@@ -332,6 +345,15 @@ meta:
           :email="student.email"
           :first-name="student.firstName"
           :last-name="student.lastName"
+          @saved="refreshProfile"
+      />
+
+      <!-- Модальное окно смены аватарки -->
+      <EditAvatarModal
+          v-if="student"
+          v-model="showAvatarModal"
+          :first-name="student.firstName"
+          :last-name="student.lastName"
           :current-avatar="student.avatar"
           @saved="refreshProfile"
       />
@@ -363,6 +385,7 @@ import ProgressBar from 'primevue/progressbar'
 import Checkbox from 'primevue/checkbox'
 import CompleteAchievementsModal from '@/components/CompleteAchievementsModal.vue'
 import EditProfileModal from '@/components/EditProfileModal.vue'
+import EditAvatarModal from '@/components/EditAvatarModal.vue'
 import RankFrame from '@/components/RankFrame.vue'
 import {useTopRanks} from '@/composables/useTopRanks'
 import api from '@/api/client'
@@ -384,6 +407,7 @@ const selectedAchievements = ref([])
 const showModal = ref(false)
 const activeTab = ref(0) // 0 - Выполненные, 1 - Невыполненные
 const showEditModal = ref(false)
+const showAvatarModal = ref(false)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const loadedImages = ref({ avatar: true })

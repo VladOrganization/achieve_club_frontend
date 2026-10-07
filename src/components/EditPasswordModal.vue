@@ -59,7 +59,7 @@
     </div>
 
     <template #footer>
-      <Button label="Отмена" severity="secondary" @click="model = false"/>
+      <Button label="Назад" icon="pi pi-arrow-left" severity="secondary" @click="goBack"/>
       <Button label="Сменить пароль" :loading="isLoading" :disabled="!isPasswordValid" @click="save"/>
     </template>
   </Dialog>
@@ -73,8 +73,13 @@ import Button from 'primevue/button'
 import Message from 'primevue/message'
 import apiClient from '@/api/client.js'
 
-const emit = defineEmits(['saved'])
+const emit = defineEmits(['saved', 'back'])
 const model = defineModel(false)
+
+const goBack = () => {
+  model.value = false
+  emit('back')
+}
 
 const isLoading = ref(false)
 const errorMessage = ref('')

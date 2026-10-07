@@ -47,7 +47,8 @@ onMounted(() => {
     navItems.value = [
       ...navItems.value,
       {title: 'admin-products', path: '/admin/products', label: 'Товары', icon: 'pi pi-box'},
-      {title: 'admin-orders', path: '/admin/orders', label: 'Заказы', icon: 'pi pi-shopping-cart'}
+      {title: 'admin-orders', path: '/admin/orders', label: 'Заказы', icon: 'pi pi-shopping-cart'},
+      {title: 'admin-avatars', path: '/admin/avatars', label: 'Аватарки', icon: 'pi pi-images'}
     ]
   }
 })

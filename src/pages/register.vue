@@ -129,10 +129,10 @@
           </label>
           <InputText
               id="verificationCode"
-              v-model="form.verificationCode"
+              :modelValue="form.verificationCode"
               placeholder="0000"
               class="w-full text-center text-2xl tracking-widest"
-              maxlength="6"
+              @update:modelValue="v => form.verificationCode = (v ?? '').replace(/\s/g, '').slice(0, 6)"
               @keyup.enter="nextStep"
           />
           <p v-if="errors.verificationCode" class="text-red-500 text-sm mt-1">
@@ -188,7 +188,7 @@
       </form>
 
       <!-- Этап 3: Установка пароля -->
-      <form v-if="currentStep === 3" @submit.prevent="completeRegistration" class="space-y-4">
+      <form v-if="currentStep === 3" @submit.prevent="goToAvatarStep" class="space-y-4">
         <div>
           <label for="password" class="block text-sm font-medium text-stone-700 mb-2">
             Пароль *
@@ -268,58 +268,27 @@
               @click="previousStep"
           />
           <Button
-              label="Завершить"
+              label="Далее"
               class="flex-1"
               :disabled="!passwordRequirementsMet"
-              :loading="isLoading"
-              @click="completeRegistration"
+              @click="goToAvatarStep"
           />
         </div>
       </form>
 
-      <!-- Этап 4: Аватарка (можно пропустить) -->
+      <!-- Этап 4: Аватарка (обязательна, аккаунт создаётся только после её выбора) -->
       <div v-if="currentStep === 4" class="space-y-4">
         <div class="bg-primary-50 p-4 rounded-lg text-center">
           <p class="text-sm text-stone-700">
-            Добавьте аватарку — этот шаг можно пропустить и сделать позже
+            Загрузите своё фото или выберите аватарку из списка
           </p>
         </div>
 
-        <div class="flex flex-col items-center gap-3">
-          <button
-              type="button"
-              class="group relative w-32 h-32 rounded-full overflow-hidden bg-stone-200 flex items-center justify-center cursor-pointer"
-              :disabled="isLoading"
-              aria-label="Выбрать фото"
-              @click="avatarInput.click()"
-          >
-            <img
-                v-if="avatarPreview"
-                :src="avatarPreview"
-                alt="Предпросмотр аватарки"
-                class="w-full h-full object-cover"
-            />
-            <i v-else class="pi pi-user text-7xl text-stone-400"></i>
-            <span class="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <i class="pi pi-camera text-3xl"></i>
-            </span>
-          </button>
-
-          <input
-              ref="avatarInput"
-              type="file"
-              accept=".png,.jpg,.jpeg,.webp,.bmp,.gif"
-              class="hidden"
-              @change="onAvatarSelected"
-          />
-          <Button
-              :label="avatarFile ? 'Выбрать другое фото' : 'Выбрать фото'"
-              icon="pi pi-image"
-              severity="secondary"
-              :disabled="isLoading"
-              @click="avatarInput.click()"
-          />
-        </div>
+        <AvatarPicker
+            v-model="avatarSelection"
+            :disabled="isLoading"
+            @error="errorMessage = $event"
+        />
 
         <Message
             v-if="errorMessage"
@@ -331,24 +300,25 @@
 
         <div class="flex gap-3 mt-6">
           <Button
-              label="Пропустить"
+              v-if="!isRegistered"
+              label="Назад"
               severity="secondary"
               class="flex-1"
               :disabled="isLoading"
-              @click="finishRegistration"
+              @click="previousStep"
           />
           <Button
-              label="Загрузить"
+              :label="isRegistered ? 'Сохранить фото' : 'Зарегистрироваться'"
               class="flex-1"
-              :disabled="!avatarFile"
+              :disabled="!avatarSelection"
               :loading="isLoading"
-              @click="uploadAvatar"
+              @click="completeRegistration"
           />
         </div>
       </div>
 
       <!-- Ссылка на вход -->
-      <div v-if="currentStep < 4" class="mt-6 text-center text-sm text-stone-600">
+      <div v-if="!isRegistered" class="mt-6 text-center text-sm text-stone-600">
         <span>Уже есть аккаунт? </span>
         <router-link
             to="/login"
@@ -372,6 +342,8 @@ import apiClient from "@/api/client.js";
 import api from "@/api/client.js";
 import {useAuthStore} from "@/stores/auth.js";
 import GoogleAuthButton from "@/components/GoogleAuthButton.vue";
+import AvatarPicker from "@/components/AvatarPicker.vue";
+import {saveAvatar} from "@/api/avatars.js";
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -381,9 +353,9 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const resendCountdown = ref(0)
-const avatarInput = ref(null)
-const avatarFile = ref(null)
-const avatarPreview = ref('')
+const avatarSelection = ref(null)
+// Аккаунт уже создан, но своё фото не загрузилось — повторяем только загрузку фото
+const isRegistered = ref(false)
 
 const form = ref({
   firstName: '',
@@ -568,6 +540,8 @@ const errorText = (error, fallback) => {
   const data = error.response?.data
   if (data === 'timeout') return 'Подождите минуту перед повторной отправкой'
   if (data === 'email') return 'Пользователь с такой почтой уже зарегистрирован'
+  if (data === 'name') return 'Пользователь с таким именем и фамилией уже зарегистрирован'
+  if (data === 'avatar') return 'Эта аватарка больше недоступна, выберите другую'
   return fallback
 }
 
@@ -597,71 +571,51 @@ const resendCode = async () => {
   }
 }
 
+const goToAvatarStep = () => {
+  errorMessage.value = ''
+  if (!validateStep3()) return
+  currentStep.value = 4
+}
+
+// Регистрация происходит только после выбора фото: аватарка из списка уходит прямо в запросе регистрации,
+// своё фото загружается сразу после создания аккаунта (для загрузки нужен токен)
 const completeRegistration = async () => {
   errorMessage.value = ''
 
-  if (!validateStep3()) return
-
-  isLoading.value = true
-
-  await apiClient.post('/api/auth/registration?api-version=1.1', {
-    firstName: form.value.firstName,
-    lastName: form.value.lastName,
-    emailAddress: form.value.email,
-    password: form.value.password,
-    proofCode: form.value.verificationCode
-  }).then((response) => {
-    console.log('login', response.data)
-    authStore.setAuthData(response.data.userId, response.data.authToken, response.data.refreshToken, response.data.role)
-    currentStep.value = 4
-  }).catch((error) => {
-    errorMessage.value = error.message || 'Ошибка при подтверждении кода'
-  }).finally(() => {
-    isLoading.value = false
-  })
-}
-
-const MAX_AVATAR_SIZE = 10_000_000
-
-const onAvatarSelected = (event) => {
-  const file = event.target.files?.[0]
-  event.target.value = ''
-  if (!file) return
-
-  errorMessage.value = ''
-
-  if (!file.type.startsWith('image/')) {
-    errorMessage.value = 'Выберите файл изображения'
-    return
-  }
-  if (file.size > MAX_AVATAR_SIZE) {
-    errorMessage.value = 'Файл слишком большой (максимум 10 МБ)'
+  if (!avatarSelection.value) {
+    errorMessage.value = 'Выберите фото'
     return
   }
 
-  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
-  avatarFile.value = file
-  avatarPreview.value = URL.createObjectURL(file)
-}
-
-const finishRegistration = () => {
-  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
-  router.push('/')
-}
-
-const uploadAvatar = async () => {
-  if (!avatarFile.value) return
-
-  errorMessage.value = ''
   isLoading.value = true
 
   try {
-    const data = new FormData()
-    data.append('file', avatarFile.value)
-    await apiClient.post('/api/avatar', data, {timeout: 60000})
-    finishRegistration()
+    if (!isRegistered.value) {
+      const presetPath = avatarSelection.value.type === 'preset' ? avatarSelection.value.path : null
+
+      const response = await apiClient.post('/api/auth/registration?api-version=1.1', {
+        firstName: form.value.firstName,
+        lastName: form.value.lastName,
+        emailAddress: form.value.email,
+        password: form.value.password,
+        proofCode: form.value.verificationCode,
+        avatarURL: presetPath
+      })
+      authStore.setAuthData(response.data.userId, response.data.authToken, response.data.refreshToken, response.data.role)
+      isRegistered.value = true
+
+      if (presetPath) {
+        await router.push('/')
+        return
+      }
+    }
+
+    await saveAvatar(avatarSelection.value)
+    await router.push('/')
   } catch (error) {
-    errorMessage.value = error.response?.data?.toString() || 'Не удалось загрузить аватарку'
+    errorMessage.value = isRegistered.value
+        ? 'Аккаунт создан, но фото не сохранилось. Попробуйте ещё раз или выберите другое фото'
+        : errorText(error, 'Ошибка при регистрации')
   } finally {
     isLoading.value = false
   }

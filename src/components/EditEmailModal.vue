@@ -38,10 +38,10 @@
         <label for="edit-email-code" class="block text-sm font-medium text-stone-700 mb-2">Код подтверждения</label>
         <InputText
             id="edit-email-code"
-            v-model="form.code"
+            :modelValue="form.code"
             placeholder="0000"
             class="w-full"
-            maxlength="4"
+            @update:modelValue="v => form.code = (v ?? '').replace(/\s/g, '').slice(0, 4)"
             @keyup.enter="confirm"
         />
         <p v-if="errors.code" class="text-red-500 text-sm mt-1">{{ errors.code }}</p>
@@ -65,7 +65,7 @@
     </Message>
 
     <template #footer>
-      <Button label="Отмена" severity="secondary" @click="model = false"/>
+      <Button label="Назад" icon="pi pi-arrow-left" severity="secondary" @click="goBack"/>
       <Button v-if="currentStep === 1" label="Отправить код" :loading="isLoading" @click="sendCode"/>
       <Button v-else label="Подтвердить" :loading="isLoading" @click="confirm"/>
     </template>
@@ -84,8 +84,13 @@ defineProps({
   currentEmail: {type: String, default: ''},
 })
 
-const emit = defineEmits(['saved'])
+const emit = defineEmits(['saved', 'back'])
 const model = defineModel(false)
+
+const goBack = () => {
+  model.value = false
+  emit('back')
+}
 
 const currentStep = ref(1)
 const isLoading = ref(false)

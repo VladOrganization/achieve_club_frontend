@@ -9,41 +9,6 @@
       @hide="resetForm"
   >
     <div class="space-y-4">
-      <!-- Аватарка -->
-      <div class="flex flex-col items-center gap-3">
-        <div
-            class="w-28 h-28 rounded-lg overflow-hidden bg-gradient-to-br from-stone-300 to-stone-400 flex items-center justify-center cursor-pointer"
-            @click="avatarInput.click()"
-        >
-          <img
-              v-if="avatarPreview"
-              :src="avatarPreview"
-              alt="Аватарка"
-              class="w-full h-full object-cover"
-          />
-          <UserAvatar
-              v-else
-              :src="currentAvatar ? apiUrl(currentAvatar) : ''"
-              :first-name="firstName"
-              :last-name="lastName"
-          />
-        </div>
-        <input
-            ref="avatarInput"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            @change="onAvatarSelected"
-        />
-        <Button
-            :label="avatarFile ? 'Выбрать другое фото' : 'Выбрать новую аватарку'"
-            icon="pi pi-image"
-            severity="secondary"
-            size="small"
-            @click="avatarInput.click()"
-        />
-      </div>
-
       <div>
         <label for="edit-first-name" class="block text-sm font-medium text-stone-700 mb-2">Имя</label>
         <InputText id="edit-first-name" v-model="form.firstName" class="w-full" @keyup.enter="save"/>
@@ -63,7 +28,7 @@
             severity="secondary"
             size="small"
             class="flex-1"
-            @click="showPasswordModal = true"
+            @click="openPasswordModal"
         />
         <Button
             label="Редактировать почту"
@@ -71,7 +36,7 @@
             severity="secondary"
             size="small"
             class="flex-1"
-            @click="showEmailModal = true"
+            @click="openEmailModal"
         />
       </div>
 
@@ -86,8 +51,8 @@
     </template>
   </Dialog>
 
-  <EditPasswordModal v-model="showPasswordModal"/>
-  <EditEmailModal v-model="showEmailModal" :current-email="email" @saved="emit('saved')"/>
+  <EditPasswordModal v-model="showPasswordModal" @back="model = true"/>
+  <EditEmailModal v-model="showEmailModal" :current-email="email" @saved="emit('saved')" @back="model = true"/>
 </template>
 
 <script setup>
@@ -97,7 +62,6 @@ import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
 import apiClient from '@/api/client.js'
-import {apiUrl} from '@/api/config'
 import EditPasswordModal from '@/components/EditPasswordModal.vue'
 import EditEmailModal from '@/components/EditEmailModal.vue'
 
@@ -105,19 +69,13 @@ const props = defineProps({
   email: {type: String, default: ''},
   firstName: {type: String, default: ''},
   lastName: {type: String, default: ''},
-  currentAvatar: {type: String, default: null},
 })
 
 const emit = defineEmits(['saved'])
 const model = defineModel(false)
 
-const MAX_AVATAR_SIZE = 10_000_000
-
 const showPasswordModal = ref(false)
 const showEmailModal = ref(false)
-const avatarInput = ref(null)
-const avatarFile = ref(null)
-const avatarPreview = ref('')
 const isLoading = ref(false)
 const errorMessage = ref('')
 const form = ref({firstName: '', lastName: ''})
@@ -128,32 +86,18 @@ const initForm = () => {
 }
 
 const resetForm = () => {
-  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
-  avatarFile.value = null
-  avatarPreview.value = ''
   errors.value = {firstName: '', lastName: ''}
   errorMessage.value = ''
 }
 
-const onAvatarSelected = (event) => {
-  const file = event.target.files?.[0]
-  event.target.value = ''
-  if (!file) return
+const openPasswordModal = () => {
+  model.value = false
+  showPasswordModal.value = true
+}
 
-  errorMessage.value = ''
-
-  if (!file.type.startsWith('image/')) {
-    errorMessage.value = 'Выберите файл изображения'
-    return
-  }
-  if (file.size > MAX_AVATAR_SIZE) {
-    errorMessage.value = 'Файл слишком большой (максимум 10 МБ)'
-    return
-  }
-
-  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
-  avatarFile.value = file
-  avatarPreview.value = URL.createObjectURL(file)
+const openEmailModal = () => {
+  model.value = false
+  showEmailModal.value = true
 }
 
 const MAX_NAME_LENGTH = 100
@@ -169,7 +113,7 @@ const validateName = (value, min, texts) => {
 const validate = () => {
   errors.value = {
     firstName: validateName(form.value.firstName, 2, {required: 'Имя обязательно', label: 'Имя должно содержать'}),
-    lastName: validateName(form.value.lastName, 5, {required: 'Фамилия обязательна', label: 'Фамилия должна содержать'}),
+    lastName: validateName(form.value.lastName, 4, {required: 'Фамилия обязательна', label: 'Фамилия должна содержать'}),
   }
   return !errors.value.firstName && !errors.value.lastName
 }
@@ -185,12 +129,6 @@ const save = async () => {
 
     if (firstName !== props.firstName || lastName !== props.lastName) {
       await apiClient.patch('/api/users/change_name', {firstName, lastName})
-    }
-
-    if (avatarFile.value) {
-      const data = new FormData()
-      data.append('file', avatarFile.value)
-      await apiClient.post('/api/avatar', data, {timeout: 60000})
     }
 
     emit('saved')
