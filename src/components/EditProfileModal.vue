@@ -23,7 +23,7 @@
 
       <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-stone-200">
         <Button
-            label="Редактировать пароль"
+            label="Изменить пароль"
             icon="pi pi-lock"
             severity="secondary"
             size="small"
@@ -31,7 +31,7 @@
             @click="openPasswordModal"
         />
         <Button
-            label="Редактировать почту"
+            label="Изменить почту"
             icon="pi pi-envelope"
             severity="secondary"
             size="small"
