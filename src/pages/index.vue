@@ -5,6 +5,7 @@ meta:
 
 <template>
   <div class="min-h-screen bg-gray-50 py-8 px-4">
+    <Toast/>
     <div class="max-w-4xl mx-auto">
       <!-- Состояние загрузки -->
       <Skeleton v-if="isLoading" height="600px" />
@@ -112,7 +113,7 @@ meta:
 
         <!-- Вкладки достижений -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <TabView>
+          <TabView v-model:activeIndex="activeTab">
             <!-- Вкладка выполненных достижений -->
             <TabPanel
                 header="Выполненные"
@@ -315,7 +316,6 @@ meta:
                   :label="`Выполнить (${selectedAchievements.length})`"
                   severity="success"
                   size="small"
-                  :loading="isSubmitting"
                   @click="openModal"
                   :pt="{
                   root: { class: 'px-3 py-2' }
@@ -344,8 +344,6 @@ meta:
             :student-id="student.id"
             :selected-achievements="selectedAchievements"
             :all-achievements="allAchievements"
-            :is-submitting="isSubmitting"
-            @confirm="completeSelectedAchievements"
             @cancel="showModal = false"
         />
       </template>
@@ -354,7 +352,8 @@ meta:
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { HubConnectionBuilder } from '@microsoft/signalr'
 import { useRouter, useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
@@ -366,19 +365,21 @@ import Checkbox from 'primevue/checkbox'
 import CompleteAchievementsModal from '@/components/CompleteAchievementsModal.vue'
 import EditProfileModal from '@/components/EditProfileModal.vue'
 import api from '@/api/client'
-import {apiUrl} from '@/api/config'
+import {apiUrl, API_CONFIG} from '@/api/config'
 import {useAuthStore} from "@/stores/auth.js";
+import {useToast} from 'primevue/usetoast'
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToast()
 
 const student = ref(null)
 const allAchievements = ref([])
 const completedAchievementIds = ref([])
 const selectedAchievements = ref([])
 const showModal = ref(false)
+const activeTab = ref(0) // 0 - Выполненные, 1 - Невыполненные
 const showEditModal = ref(false)
 const isLoading = ref(false)
-const isSubmitting = ref(false)
 const errorMessage = ref('')
 const loadedImages = ref({ avatar: true })
 
@@ -485,35 +486,68 @@ const openModal = () => {
   showModal.value = true
 }
 
-// Выполнение выбранных достижений
-const completeSelectedAchievements = async () => {
-  if (selectedAchievements.value.length === 0) return
+// Обновление данных без показа скелетона (после SignalR-уведомления)
+const refreshAfterCompletion = async () => {
+  try {
+    const [studentResponse, completedResponse] = await Promise.all([
+      api.get('/api/users/current'),
+      api.get('/api/CompletedAchievements/current')
+    ])
+    student.value = studentResponse.data
+    completedAchievementIds.value = (completedResponse.data || []).map(
+        (a) => a.achieveId
+    )
+    selectedAchievements.value = []
+    showModal.value = false
+    activeTab.value = 0
+  } catch (error) {
+    console.error('Error refreshing after completion:', error)
+  }
+}
 
-  isSubmitting.value = true
-  errorMessage.value = ''
+// SignalR: сервер шлёт "completed:{userId}" после подтверждения достижений
+let connection = null
+let isUnmounted = false
+let isHandlingCompletion = false
+
+const onCompleted = async () => {
+  // Защита от дублей: пока предыдущее событие обрабатывается, повторные игнорируем
+  if (isHandlingCompletion) return
+  isHandlingCompletion = true
+  try {
+    await refreshAfterCompletion()
+    toast.add({
+      severity: 'success',
+      summary: 'Достижения подтверждены',
+      detail: 'Опыт и список достижений обновлены',
+      life: 4000
+    })
+  } finally {
+    isHandlingCompletion = false
+  }
+}
+
+const startSignalR = async (userId) => {
+  // Не допускаем нескольких одновременных подключений
+  await connection?.stop()
+
+  const conn = new HubConnectionBuilder()
+      // Бэкенд отвечает CORS "*", что несовместимо с credentials (по умолчанию true)
+      .withUrl(`${API_CONFIG.baseURL}:${API_CONFIG.port}/achieve`, {withCredentials: false})
+      .withAutomaticReconnect()
+      .build()
+  connection = conn
+
+  conn.on(`completed:${userId}`, onCompleted)
+  // После переподключения могли пропустить событие
+  conn.onreconnected(refreshAfterCompletion)
 
   try {
-
-    // Добавить выбранные достижения в завершенные
-    completedAchievementIds.value = [
-      ...completedAchievementIds.value,
-      ...selectedAchievements.value
-    ]
-
-    // Очистить выбор
-    selectedAchievements.value = []
-
-    // Закрыть модальное окно
-    showModal.value = false
-
-    // Показать успешное сообщение
-    errorMessage.value = '' // Очистить ошибку
+    await conn.start()
+    // Страница закрылась, пока подключались
+    if (isUnmounted) await conn.stop()
   } catch (error) {
-    errorMessage.value =
-        error.message || 'Ошибка при выполнении достижений'
-    console.error('Error completing achievements:', error)
-  } finally {
-    isSubmitting.value = false
+    console.error('SignalR connection error:', error)
   }
 }
 
@@ -536,6 +570,12 @@ const signOut = () => {
 
 onMounted(async () => {
   await loadStudentData()
+  if (student.value) await startSignalR(student.value.id)
+})
+
+onBeforeUnmount(() => {
+  isUnmounted = true
+  connection?.stop()
 })
 </script>
 

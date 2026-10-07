@@ -86,12 +86,6 @@
           severity="secondary"
           @click="onCancel"
       />
-      <Button
-          label="Я отсканировал код"
-          severity="success"
-          :loading="isSubmitting"
-          @click="onConfirm"
-      />
     </template>
   </Dialog>
 </template>
@@ -120,13 +114,9 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  isSubmitting: {
-    type: Boolean,
-    default: false,
-  },
 })
 
-const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
+const emit = defineEmits(['update:modelValue', 'cancel'])
 
 const isVisible = ref(false)
 
@@ -174,10 +164,6 @@ const qrCodeData = computed(() => {
 const onCancel = () => {
   isVisible.value = false
   emit('cancel')
-}
-
-const onConfirm = () => {
-  emit('confirm')
 }
 
 const onHide = () => {
