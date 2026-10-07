@@ -5,13 +5,13 @@ meta:
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-6 px-4">
+  <div class="min-h-screen py-6 px-4">
     <Toast/>
     <div class="max-w-5xl mx-auto">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Товары</h1>
-          <p class="text-gray-600 mt-1">Всего: <span class="font-semibold">{{ products.length }}</span></p>
+          <h1 class="text-3xl font-bold text-stone-900">Товары</h1>
+          <p class="text-stone-600 mt-1">Всего: <span class="font-semibold">{{ products.length }}</span></p>
         </div>
         <div class="flex gap-2">
           <InputText v-model="search" placeholder="Поиск..." class="flex-1 sm:w-56"/>
@@ -19,7 +19,7 @@ meta:
         </div>
       </div>
 
-      <div v-if="isLoading" class="text-center text-gray-500 py-10">
+      <div v-if="isLoading" class="text-center text-stone-500 py-10">
         <i class="pi pi-spin pi-spinner text-2xl"></i>
       </div>
 
@@ -32,23 +32,31 @@ meta:
         <div
             v-for="product in filteredProducts"
             :key="product.id"
-            class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+            class="bg-white border border-stone-200 rounded-lg p-4 shadow-sm"
         >
           <div class="flex gap-3">
             <img
                 v-if="mainPhoto(product)"
                 :src="photoUrl(mainPhoto(product))"
-                class="w-20 h-20 rounded-lg object-cover bg-gray-100 shrink-0"
+                class="w-20 h-20 rounded-lg object-cover bg-stone-100 shrink-0"
                 alt=""
             />
             <div v-else
-                 class="w-20 h-20 rounded-lg bg-gray-100 shrink-0 flex items-center justify-center text-gray-400">
+                 class="w-20 h-20 rounded-lg bg-stone-100 shrink-0 flex items-center justify-center text-stone-400">
               <i class="pi pi-image text-2xl"></i>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-xs text-gray-500">{{ product.type }} · {{ product.categoryTitle }}</p>
-              <p class="font-semibold text-gray-900 truncate">{{ product.name }}</p>
-              <p class="text-blue-600 font-bold">{{ product.price }} XP</p>
+              <p class="text-xs text-stone-500">{{ product.type }} · {{ product.categoryTitle }}</p>
+              <p class="font-semibold text-stone-900 truncate">{{ product.name }}</p>
+              <p class="text-primary-600 font-bold">{{ product.price }} XP</p>
+            </div>
+
+            <!-- Действия в шапке карточки -->
+            <div class="flex shrink-0 gap-1 self-start -mt-1 -mr-1">
+              <PrimeButton icon="pi pi-pencil" text rounded aria-label="Изменить" title="Изменить"
+                           @click="openEdit(product)"/>
+              <PrimeButton icon="pi pi-trash" severity="danger" text rounded aria-label="Удалить" title="Удалить"
+                           @click="removeProduct(product)"/>
             </div>
           </div>
 
@@ -62,16 +70,143 @@ meta:
               {{ v.name }}: {{ v.quantity }} шт.
             </span>
           </div>
+        </div>
+      </div>
 
-          <div class="mt-3 flex gap-2 justify-end">
-            <PrimeButton label="Изменить" icon="pi pi-pencil" size="small" severity="secondary"
-                         @click="openEdit(product)"/>
-            <PrimeButton label="Удалить" icon="pi pi-trash" size="small" severity="danger" outlined
-                         @click="removeProduct(product)"/>
+      <!-- Категории -->
+      <div class="mt-10 pt-6 border-t border-stone-200">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-2xl font-bold text-stone-900">Категории</h2>
+            <p class="text-stone-600 mt-1">Всего: <span class="font-semibold">{{ categories.length }}</span></p>
+          </div>
+          <PrimeButton label="Добавить" icon="pi pi-plus" @click="openCategoryCreate"/>
+        </div>
+
+        <div v-if="!isLoading && categories.length === 0"
+             class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+          Категорий пока нет
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+              v-for="category in categories"
+              :key="category.id"
+              class="bg-white border border-stone-200 rounded-lg p-4 shadow-sm"
+          >
+            <div class="flex gap-3">
+              <div class="w-20 h-14 rounded-lg bg-stone-100 shrink-0 overflow-hidden flex items-center justify-center text-stone-400">
+                <img v-if="category.availableBanner" :src="photoUrl(category.availableBanner)"
+                     class="w-full h-full object-cover" alt=""/>
+                <i v-else class="pi pi-image text-xl"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-semibold text-stone-900 truncate flex items-center gap-2">
+                  <span v-if="category.color" class="inline-block w-3 h-3 rounded-full border border-stone-300 shrink-0"
+                        :style="{ backgroundColor: '#' + normalizeColor(category.color) }"></span>
+                  {{ category.title }}
+                </p>
+                <p class="text-xs text-stone-500">
+                  Товаров: {{ category.productsCount }} · {{ formatPeriod(category) }}
+                </p>
+                <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full border"
+                      :class="category.show ? 'border-green-300 bg-green-50 text-green-700' : 'border-stone-300 bg-stone-50 text-stone-600'">
+                  {{ category.show ? 'Показывается' : 'Скрыта' }}
+                </span>
+              </div>
+              <div class="flex shrink-0 gap-1 self-start -mt-1 -mr-1">
+                <PrimeButton icon="pi pi-pencil" text rounded aria-label="Изменить" title="Изменить"
+                             @click="openCategoryEdit(category)"/>
+                <PrimeButton icon="pi pi-trash" severity="danger" text rounded aria-label="Удалить" title="Удалить"
+                             @click="removeCategory(category)"/>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <Dialog
+        v-model:visible="categoryDialogVisible"
+        modal
+        :header="categoryForm.id ? 'Редактирование категории' : 'Новая категория'"
+        :style="{ width: '40rem', maxWidth: '96vw' }"
+    >
+      <div class="flex flex-col gap-4">
+        <label class="flex flex-col gap-1 text-sm text-stone-700">Название
+          <InputText v-model="categoryForm.title"/>
+        </label>
+
+        <div class="flex flex-col gap-1 text-sm text-stone-700">
+          Цвет
+          <div class="flex items-center gap-3 h-[2.5rem]">
+            <ColorPicker
+                :model-value="normalizeColor(categoryForm.color)"
+                format="hex"
+                @update:model-value="categoryForm.color = normalizeColor($event)"
+            />
+            <span v-if="categoryForm.color" class="font-mono text-stone-600 uppercase">#{{ normalizeColor(categoryForm.color) }}</span>
+            <span v-else class="text-stone-400">не задан</span>
+            <PrimeButton v-if="categoryForm.color" label="Сбросить" size="small" severity="secondary" text
+                         @click="categoryForm.color = null"/>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="flex flex-col gap-1 text-sm text-stone-700">Начало
+            <DatePicker v-model="categoryForm.startDate" show-time hour-format="24" show-button-bar date-format="dd.mm.yy"/>
+          </label>
+          <label class="flex flex-col gap-1 text-sm text-stone-700">Конец
+            <DatePicker v-model="categoryForm.endDate" show-time hour-format="24" show-button-bar date-format="dd.mm.yy"/>
+          </label>
+        </div>
+        <p class="text-xs text-stone-500 -mt-2">
+          Если не указана хотя бы одна из дат, ограничения по времени нет.
+        </p>
+
+        <label class="flex items-center gap-3 text-sm text-stone-700 cursor-pointer">
+          <ToggleSwitch v-model="categoryForm.show"/>
+          Показывать категорию в магазине
+        </label>
+
+        <div v-for="slot in bannerSlots" :key="slot.field" class="flex flex-col gap-2">
+          <span class="text-sm text-stone-700">{{ slot.label }}</span>
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <img v-if="categoryForm[slot.field]" :src="photoUrl(categoryForm[slot.field])"
+                   class="h-24 max-w-[16rem] rounded-lg object-contain bg-stone-100 border border-stone-200" alt=""/>
+              <div v-else
+                   class="h-24 w-40 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-400">
+                <i class="pi pi-image text-2xl"></i>
+              </div>
+              <button
+                  v-if="categoryForm[slot.field]"
+                  type="button"
+                  class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center shadow"
+                  title="Убрать баннер"
+                  @click="categoryForm[slot.field] = null"
+              >
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+            <label
+                class="px-3 py-2 rounded-lg border-2 border-dashed border-stone-300 flex items-center gap-2 text-stone-500 text-sm cursor-pointer hover:border-primary-400 hover:text-primary-500"
+                :class="{ 'opacity-60 pointer-events-none': categoryForm.uploading === slot.field }"
+            >
+              <i :class="categoryForm.uploading === slot.field ? 'pi pi-spin pi-spinner' : 'pi pi-upload'"></i>
+              {{ categoryForm.uploading === slot.field ? 'Загрузка...' : 'Загрузить' }}
+              <input type="file" accept="image/*" class="hidden" @change="onBannerSelected(slot.field, $event)"/>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <PrimeButton label="Отмена" severity="secondary" text @click="categoryDialogVisible = false"/>
+        <PrimeButton :label="categoryForm.id ? 'Сохранить' : 'Создать'" icon="pi pi-check"
+                     :loading="isCategorySaving" @click="saveCategory"/>
+      </template>
+    </Dialog>
 
     <Dialog
         v-model:visible="dialogVisible"
@@ -81,39 +216,39 @@ meta:
     >
       <div class="flex flex-col gap-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <label class="flex flex-col gap-1 text-sm text-gray-700">Название
+          <label class="flex flex-col gap-1 text-sm text-stone-700">Название
             <InputText v-model="form.name"/>
           </label>
-          <label class="flex flex-col gap-1 text-sm text-gray-700">Тип
+          <label class="flex flex-col gap-1 text-sm text-stone-700">Тип
             <InputText v-model="form.type" placeholder="Например: Футболка"/>
           </label>
-          <label class="flex flex-col gap-1 text-sm text-gray-700">Категория
+          <label class="flex flex-col gap-1 text-sm text-stone-700">Категория
             <Select v-model="form.categoryId" :options="categories" option-label="title" option-value="id"
                     placeholder="Выберите категорию"/>
           </label>
-          <label class="flex flex-col gap-1 text-sm text-gray-700">Цена
+          <label class="flex flex-col gap-1 text-sm text-stone-700">Цена
             <div class="flex items-center gap-2">
               <InputNumber v-model="form.price" :min="0" :use-grouping="false" class="flex-1"/>
-              <span class="text-gray-500 font-medium">XP</span>
+              <span class="text-stone-500 font-medium">XP</span>
             </div>
           </label>
         </div>
-        <label class="flex flex-col gap-1 text-sm text-gray-700">Описание
+        <label class="flex flex-col gap-1 text-sm text-stone-700">Описание
           <Textarea v-model="form.details" rows="3" auto-resize/>
         </label>
 
         <div class="flex items-center justify-between">
-          <h3 class="font-semibold text-gray-900">Варианты</h3>
+          <h3 class="font-semibold text-stone-900">Варианты</h3>
           <PrimeButton label="Вариант" icon="pi pi-plus" size="small" severity="secondary" @click="addVariant"/>
         </div>
 
         <div
             v-for="(variant, vi) in form.variants"
             :key="variant.key"
-            class="border border-gray-200 rounded-lg p-3 flex flex-col gap-3"
+            class="border border-stone-200 rounded-lg p-3 flex flex-col gap-3"
         >
           <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer">
               <input type="radio" :value="vi" v-model="form.defaultVariantIndex"/>
               Вариант по умолчанию
             </label>
@@ -122,19 +257,27 @@ meta:
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <label class="flex flex-col gap-1 text-sm text-gray-700">Название
+            <label class="flex flex-col gap-1 text-sm text-stone-700">Название
               <InputText v-model="variant.name"/>
             </label>
-            <label class="flex flex-col gap-1 text-sm text-gray-700">Цвет
-              <InputText v-model="variant.color" placeholder="#000000 или название"/>
-            </label>
-            <label class="flex flex-col gap-1 text-sm text-gray-700">Количество
+            <div class="flex flex-col gap-1 text-sm text-stone-700">
+              Цвет
+              <div class="flex items-center gap-3 h-[2.5rem]">
+                <ColorPicker
+                    :model-value="pickerValue(variant.color)"
+                    format="hex"
+                    @update:model-value="setVariantColor(variant, $event)"
+                />
+                <span class="font-mono text-stone-600 uppercase">#{{ normalizeColor(variant.color) }}</span>
+              </div>
+            </div>
+            <label class="flex flex-col gap-1 text-sm text-stone-700">Количество
               <InputNumber v-model="variant.quantity" :min="0" :use-grouping="false"/>
             </label>
           </div>
 
           <div class="flex flex-col gap-2">
-            <span class="text-sm text-gray-700">Фото (отметьте главное)</span>
+            <span class="text-sm text-stone-700">Фото (отметьте главное)</span>
             <div class="flex flex-wrap gap-3">
               <div
                   v-for="(photo, pi) in variant.photos"
@@ -142,7 +285,7 @@ meta:
                   class="relative w-24"
               >
                 <img :src="photoUrl(photo)"
-                     class="w-24 h-24 rounded-lg object-cover bg-gray-100 border border-gray-200" alt=""/>
+                     class="w-24 h-24 rounded-lg object-cover bg-stone-100 border border-stone-200" alt=""/>
                 <button
                     type="button"
                     class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center shadow"
@@ -151,14 +294,14 @@ meta:
                 >
                   <i class="pi pi-times"></i>
                 </button>
-                <label class="mt-1 flex items-center justify-center gap-1 text-xs text-gray-600 cursor-pointer">
+                <label class="mt-1 flex items-center justify-center gap-1 text-xs text-stone-600 cursor-pointer">
                   <input type="radio" :value="pi" v-model="variant.defaultPhotoIndex"/>
                   Главное
                 </label>
               </div>
 
               <label
-                  class="w-24 h-24 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-500 text-xs cursor-pointer hover:border-blue-400 hover:text-blue-500"
+                  class="w-24 h-24 rounded-lg border-2 border-dashed border-stone-300 flex flex-col items-center justify-center text-stone-500 text-xs cursor-pointer hover:border-primary-400 hover:text-primary-500"
                   :class="{ 'opacity-60 pointer-events-none': variant.uploading }"
               >
                 <i :class="variant.uploading ? 'pi pi-spin pi-spinner' : 'pi pi-plus'" class="text-xl mb-1"></i>
@@ -182,6 +325,8 @@ meta:
 <script setup>
 import {computed, onMounted, ref} from 'vue'
 import PrimeButton from 'primevue/button'
+import DatePicker from 'primevue/datepicker'
+import ToggleSwitch from 'primevue/toggleswitch'
 import {useToast} from 'primevue/usetoast'
 import api from '@/api/client'
 
@@ -195,7 +340,34 @@ const isSaving = ref(false)
 const dialogVisible = ref(false)
 
 let keyCounter = 0
-const newVariant = () => ({key: ++keyCounter, id: null, name: '', color: '', quantity: 0, photos: [], defaultPhotoIndex: 0, uploading: false})
+// Бекенд хранит цвет варианта как есть (строка без проверки формата), а в данных принят hex БЕЗ '#' (например "ffffff"):
+// так же устроены цвета тегов (varchar(8)) и примеры запросов, а магазин при показе сам добавляет '#' (cssColor).
+// Поэтому в бекенд всегда отправляем шесть hex-символов без '#'.
+const DEFAULT_COLOR = '000000' // цвет варианта по умолчанию — чёрный
+
+// Любое сохранённое значение цвета (#fff, ffffff, название вроде "red") приводим к виду rrggbb
+const normalizeColor = (value) => {
+  const raw = String(value || '').trim()
+  if (!raw) return DEFAULT_COLOR
+  const hex = raw.replace(/^#/, '')
+  if (/^[0-9a-f]{3}$/i.test(hex)) return hex.split('').map(c => c + c).join('').toLowerCase()
+  if (/^[0-9a-f]{6}$/i.test(hex)) return hex.toLowerCase()
+  if (/^[0-9a-f]{8}$/i.test(hex)) return hex.slice(0, 6).toLowerCase() // прозрачность отбрасываем
+  // название цвета: пусть браузер сам переведёт его в hex
+  const ctx = document.createElement('canvas').getContext('2d')
+  ctx.fillStyle = '#000000'
+  ctx.fillStyle = raw
+  const resolved = ctx.fillStyle
+  return /^#[0-9a-f]{6}$/i.test(resolved) ? resolved.slice(1).toLowerCase() : DEFAULT_COLOR
+}
+
+// ColorPicker тоже работает с hex без '#', так что значение передаётся как есть
+const pickerValue = (color) => normalizeColor(color)
+const setVariantColor = (variant, value) => {
+  variant.color = normalizeColor(value)
+}
+
+const newVariant = () => ({key: ++keyCounter, id: null, name: '', color: DEFAULT_COLOR, quantity: 0, photos: [], defaultPhotoIndex: 0, uploading: false})
 const emptyForm = () => ({
   id: null, name: '', type: '', details: '', price: 0, categoryId: null,
   defaultVariantIndex: 0, variants: [newVariant()]
@@ -237,7 +409,7 @@ const loadProducts = async () => {
   try {
     const [productsRes, categoriesRes] = await Promise.all([
       api.get('/api/admin/products'),
-      api.get('/api/categories')
+      api.get('/api/categories/all')
     ])
     products.value = productsRes.data || []
     categories.value = categoriesRes.data || []
@@ -266,7 +438,7 @@ const openEdit = (product) => {
       key: ++keyCounter,
       id: v.id,
       name: v.name,
-      color: v.color,
+      color: normalizeColor(v.color),
       quantity: v.quantity,
       photos: v.photos.map(p => p.url),
       defaultPhotoIndex: Math.max(0, v.photos.findIndex(p => p.default)),
@@ -342,7 +514,7 @@ const save = async () => {
     return {
       id: v.id,
       name: v.name.trim(),
-      color: v.color.trim(),
+      color: normalizeColor(v.color),
       quantity: v.quantity ?? 0,
       photos,
       defaultPhotoIndex: idx >= 0 ? idx : 0
@@ -382,6 +554,127 @@ const removeProduct = async (product) => {
   try {
     await api.delete(`/api/admin/products/${product.id}`)
     toast.add({severity: 'success', summary: 'Товар удалён', life: 3000})
+    await loadProducts()
+  } catch (error) {
+    showError(error)
+  }
+}
+
+// ---- Категории ----
+const categoryDialogVisible = ref(false)
+const isCategorySaving = ref(false)
+const bannerSlots = [
+  {field: 'availableBanner', label: 'Баннер, когда категория доступна'},
+  {field: 'unavailableBanner', label: 'Баннер, когда категория недоступна'}
+]
+const emptyCategoryForm = () => ({
+  id: null, title: '', color: null, startDate: null, endDate: null,
+  availableBanner: null, unavailableBanner: null, show: true, uploading: null
+})
+const categoryForm = ref(emptyCategoryForm())
+
+const formatDate = (value) => new Date(value).toLocaleDateString('ru-RU')
+const formatPeriod = (category) => {
+  if (!category.startDate || !category.endDate) return 'без ограничения по времени'
+  return `${formatDate(category.startDate)} — ${formatDate(category.endDate)}`
+}
+
+// Бекенд хранит даты как "timestamp without time zone" и сравнивает с локальным временем сервера,
+// поэтому отправляем локальное время без часового пояса (без 'Z')
+const pad = (n) => String(n).padStart(2, '0')
+const toLocalIso = (date) => date
+    ? `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+    : null
+
+const openCategoryCreate = () => {
+  categoryForm.value = emptyCategoryForm()
+  categoryDialogVisible.value = true
+}
+
+const openCategoryEdit = (category) => {
+  categoryForm.value = {
+    id: category.id,
+    title: category.title,
+    color: category.color ? normalizeColor(category.color) : null,
+    startDate: category.startDate ? new Date(category.startDate) : null,
+    endDate: category.endDate ? new Date(category.endDate) : null,
+    availableBanner: category.availableBanner,
+    unavailableBanner: category.unavailableBanner,
+    show: category.show,
+    uploading: null
+  }
+  categoryDialogVisible.value = true
+}
+
+const onBannerSelected = async (field, event) => {
+  const file = event.target.files?.[0]
+  event.target.value = ''
+  if (!file) return
+
+  categoryForm.value.uploading = field
+  try {
+    const data = new FormData()
+    data.append('file', file)
+    const response = await api.post('/api/categories/banners', data, {timeout: 60000})
+    categoryForm.value[field] = response.data
+  } catch (error) {
+    showError(error)
+  } finally {
+    categoryForm.value.uploading = null
+  }
+}
+
+const saveCategory = async () => {
+  const f = categoryForm.value
+  if (!f.title.trim()) {
+    toast.add({severity: 'warn', summary: 'Укажите название', life: 4000})
+    return
+  }
+  if (f.uploading) {
+    toast.add({severity: 'warn', summary: 'Дождитесь окончания загрузки баннера', life: 4000})
+    return
+  }
+  if (f.startDate && f.endDate && f.startDate > f.endDate) {
+    toast.add({severity: 'warn', summary: 'Начало не может быть позже конца', life: 4000})
+    return
+  }
+
+  const payload = {
+    title: f.title.trim(),
+    color: f.color,
+    startDate: toLocalIso(f.startDate),
+    endDate: toLocalIso(f.endDate),
+    availableBanner: f.availableBanner,
+    unavailableBanner: f.unavailableBanner,
+    show: f.show
+  }
+
+  isCategorySaving.value = true
+  try {
+    if (f.id) {
+      await api.put(`/api/categories/${f.id}`, payload)
+    } else {
+      await api.post('/api/categories', payload)
+    }
+    categoryDialogVisible.value = false
+    toast.add({severity: 'success', summary: 'Сохранено', life: 3000})
+    await loadProducts()
+  } catch (error) {
+    showError(error)
+  } finally {
+    isCategorySaving.value = false
+  }
+}
+
+const removeCategory = async (category) => {
+  const warning = category.productsCount > 0
+      ? `\n\nВместе с ней будут удалены товары категории (${category.productsCount} шт.) и их варианты.`
+      : ''
+  if (!window.confirm(`Удалить категорию «${category.title}»?${warning}`)) return
+
+  try {
+    await api.delete(`/api/categories/${category.id}`)
+    toast.add({severity: 'success', summary: 'Категория удалена', life: 3000})
     await loadProducts()
   } catch (error) {
     showError(error)

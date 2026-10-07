@@ -9,12 +9,12 @@
   >
     <!-- Шаг 1: Ввод email -->
     <div v-if="currentStep === 1" class="space-y-4">
-      <p class="text-gray-600 text-sm">
+      <p class="text-stone-600 text-sm">
         Введите email для восстановления пароля
       </p>
 
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="email" class="block text-sm font-medium text-stone-700 mb-2">
           Email
         </label>
         <InputText
@@ -48,12 +48,12 @@
 
     <!-- Шаг 2: Ввод кода подтверждения -->
     <div v-if="currentStep === 2" class="space-y-4">
-      <p class="text-gray-600 text-sm">
+      <p class="text-stone-600 text-sm">
         Мы отправили код подтверждения на почту {{ form.email }}. Проверьте входящие письма (возможно, оно попало в «Спам»)
       </p>
 
       <div>
-        <label for="code" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="code" class="block text-sm font-medium text-stone-700 mb-2">
           Код подтверждения
         </label>
         <InputText
@@ -69,13 +69,13 @@
         </p>
       </div>
 
-      <div class="text-sm text-gray-600">
+      <div class="text-sm text-stone-600">
         <span>Не получили код? </span>
         <button
             type="button"
             :disabled="resendCountdown > 0"
             @click="resendCode"
-            class="text-indigo-600 hover:text-indigo-800 font-medium disabled:text-gray-400"
+            class="text-primary-600 hover:text-primary-800 font-medium disabled:text-stone-400"
         >
           {{
             resendCountdown > 0
@@ -96,10 +96,10 @@
 
     <!-- Шаг 3: Установка нового пароля -->
     <div v-if="currentStep === 3" class="space-y-4">
-      <p class="text-gray-600 text-sm">Установите новый пароль</p>
+      <p class="text-stone-600 text-sm">Установите новый пароль</p>
 
       <div>
-        <label for="new-password" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="new-password" class="block text-sm font-medium text-stone-700 mb-2">
           Новый пароль
         </label>
         <Password
@@ -117,7 +117,7 @@
       </div>
 
       <div>
-        <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="confirm-password" class="block text-sm font-medium text-stone-700 mb-2">
           Подтверждение пароля
         </label>
         <Password
@@ -135,9 +135,9 @@
       </div>
 
       <!-- Требования к паролю -->
-      <div class="bg-blue-50 p-3 rounded-lg">
-        <p class="text-sm font-medium text-gray-700 mb-2">Требования:</p>
-        <ul class="text-sm text-gray-600 space-y-1">
+      <div class="bg-primary-50 p-3 rounded-lg">
+        <p class="text-sm font-medium text-stone-700 mb-2">Требования:</p>
+        <ul class="text-sm text-stone-600 space-y-1">
           <li :class="{ 'text-green-600': form.newPassword.length >= 8 }">
             ✓ Минимум 8 символов
           </li>

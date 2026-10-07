@@ -9,13 +9,13 @@
   >
     <!-- Шаг 1: ввод новой почты -->
     <div v-if="currentStep === 1" class="space-y-4">
-      <p class="text-gray-600 text-sm">
+      <p class="text-stone-600 text-sm">
         Введите новую почту. Мы отправим на неё код подтверждения.
       </p>
-      <p v-if="currentEmail" class="text-gray-500 text-sm">Текущая почта: {{ currentEmail }}</p>
+      <p v-if="currentEmail" class="text-stone-500 text-sm">Текущая почта: {{ currentEmail }}</p>
 
       <div>
-        <label for="edit-email" class="block text-sm font-medium text-gray-700 mb-2">Новая почта</label>
+        <label for="edit-email" class="block text-sm font-medium text-stone-700 mb-2">Новая почта</label>
         <InputText
             id="edit-email"
             v-model="form.email"
@@ -30,12 +30,12 @@
 
     <!-- Шаг 2: код подтверждения -->
     <div v-else class="space-y-4">
-      <p class="text-gray-600 text-sm">
+      <p class="text-stone-600 text-sm">
         Мы отправили код подтверждения на {{ form.email }}. Проверьте входящие письма (возможно, оно попало в «Спам»)
       </p>
 
       <div>
-        <label for="edit-email-code" class="block text-sm font-medium text-gray-700 mb-2">Код подтверждения</label>
+        <label for="edit-email-code" class="block text-sm font-medium text-stone-700 mb-2">Код подтверждения</label>
         <InputText
             id="edit-email-code"
             v-model="form.code"
@@ -47,12 +47,12 @@
         <p v-if="errors.code" class="text-red-500 text-sm mt-1">{{ errors.code }}</p>
       </div>
 
-      <div class="text-sm text-gray-600">
+      <div class="text-sm text-stone-600">
         <span>Не получили код? </span>
         <button
             type="button"
             :disabled="resendCountdown > 0 || isLoading"
-            class="text-indigo-600 hover:text-indigo-800 font-medium disabled:text-gray-400"
+            class="text-primary-600 hover:text-primary-800 font-medium disabled:text-stone-400"
             @click="sendCode"
         >
           {{ resendCountdown > 0 ? `Повторить (${resendCountdown}s)` : 'Отправить снова' }}

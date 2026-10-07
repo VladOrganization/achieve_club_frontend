@@ -4,7 +4,7 @@ requiresAuth: true
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen py-4 px-3 md:py-8 md:px-4">
     <div class="max-w-4xl mx-auto">
       <!-- Состояние загрузки -->
       <Skeleton v-if="isLoading" height="600px"/>
@@ -22,29 +22,26 @@ requiresAuth: true
       <div v-if="!isLoading && student" class="space-y-6">
         <!-- Карточка профиля -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="h-32 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
-          <div class="px-6 pb-6">
+          <ProfileCover/>
+          <div class="px-4 pb-4 md:px-6 md:pb-6">
             <div class="flex flex-col md:flex-row md:items-end gap-6 -mt-16 mb-6">
               <!-- Аватарка -->
               <div class="relative">
-                <img
-                    v-if="student.avatar && loadedImages.avatar"
-                    :src="apiUrl(student.avatar)"
-                    :alt="`${student.firstName} ${student.lastName}`"
-                    class="w-32 h-32 rounded-lg shadow-lg object-cover border-4 border-white"
-                    @error="handleImageError('avatar')"
-                />
-                <div
-                    v-else
-                    class="w-32 h-32 rounded-lg shadow-lg bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center border-4 border-white"
-                >
-                  <i class="pi pi-user text-5xl text-white opacity-50"></i>
-                </div>
+                <!-- Рамка для первых четырёх мест в топе (без места — обычная белая обводка) -->
+                <RankFrame :rank="rank" :thickness="4" reserve plain-class="bg-white" class="w-32 h-32 rounded-lg shadow-lg">
+                  <div class="w-full h-full rounded-[4px] overflow-hidden">
+                    <UserAvatar
+                        :src="student.avatar ? apiUrl(student.avatar) : ''"
+                        :first-name="student.firstName"
+                        :last-name="student.lastName"
+                    />
+                  </div>
+                </RankFrame>
               </div>
 
               <!-- Информация профиля -->
-              <div class="flex-1">
-                <h1 class="text-3xl font-bold text-gray-900">
+              <div class="flex-1 min-w-0">
+                <h1 class="text-2xl sm:text-3xl font-bold leading-tight text-stone-900 break-words line-clamp-3">
                   {{ student.firstName }} {{ student.lastName }}
                 </h1>
               </div>
@@ -61,40 +58,42 @@ requiresAuth: true
               />
             </div>
 
-            <!-- Статистика -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-                <p class="text-gray-600 text-sm font-medium">Общий опыт</p>
-                <p class="text-3xl font-bold text-indigo-600 mt-2">
+            <!-- Статистика: у всех карточек одинаковая структура — заголовок, значение, нижняя строка на одной высоте -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+              <div class="flex flex-col rounded-lg p-3 md:p-4 border bg-primary-50 border-primary-200">
+                <p class="text-stone-600 text-sm font-medium leading-5">Общий опыт</p>
+                <p class="text-3xl font-bold leading-9 text-primary-600 mt-2">
                   {{ formatNumber(student.xpSum) }}
                 </p>
-                <p class="text-gray-600 text-xs mt-1">XP</p>
+                <div class="mt-3 h-4 flex items-center text-stone-600 text-xs">XP</div>
               </div>
 
-              <div class="bg-green-50 rounded-lg p-4 border border-green-200">
-                <p class="text-gray-600 text-sm font-medium">Выполненные достижения</p>
-                <p class="text-3xl font-bold text-green-600 mt-2">
+              <div class="flex flex-col rounded-lg p-3 md:p-4 border bg-green-50 border-green-200">
+                <p class="text-stone-600 text-sm font-medium leading-5">Выполненные достижения</p>
+                <p class="text-3xl font-bold leading-9 text-green-600 mt-2">
                   {{ completedAchievements.length }}
                 </p>
-                <p class="text-gray-600 text-xs mt-1">
+                <div class="mt-3 h-4 flex items-center text-stone-600 text-xs">
                   из {{ totalAchievements }}
-                </p>
+                </div>
               </div>
 
-              <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <p class="text-gray-600 text-sm font-medium">Процент завершения</p>
-                <p class="text-3xl font-bold text-blue-600 mt-2">
+              <div class="flex flex-col rounded-lg p-3 md:p-4 border bg-amber-50 border-amber-200">
+                <p class="text-stone-600 text-sm font-medium leading-5">Процент завершения</p>
+                <p class="text-3xl font-bold leading-9 text-amber-600 mt-2">
                   {{ completionPercentage }}%
                 </p>
-                <ProgressBar
-                    :value="completionPercentage"
-                    :show-value="false"
-                    class="mt-3 h-2 bg-blue-200"
-                    :pt="{
-                    root: { class: 'h-2 bg-blue-200' },
-                    value: { class: 'bg-gradient-to-r from-blue-500 to-cyan-500' }
-                  }"
-                />
+                <div class="mt-3 h-4 flex items-center">
+                  <ProgressBar
+                      :value="completionPercentage"
+                      :show-value="false"
+                      class="w-full"
+                      :pt="{
+                      root: { class: 'h-2 !bg-amber-200 rounded-full' },
+                      value: { class: 'bg-gradient-to-r from-amber-400 to-primary-500 rounded-full' }
+                    }"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -107,8 +106,8 @@ requiresAuth: true
                 v-if="completedAchievements.length === 0"
                 class="text-center py-12"
             >
-              <i class="pi pi-inbox text-5xl text-gray-300 mb-4"></i>
-              <p class="text-gray-500 text-lg">
+              <i class="pi pi-inbox text-5xl text-stone-300 mb-4"></i>
+              <p class="text-stone-500 text-lg">
                 Выполненные достижения не найдены
               </p>
             </div>
@@ -143,10 +142,10 @@ requiresAuth: true
                 </div>
 
                 <!-- Информация -->
-                <h3 class="font-bold text-gray-900 text-sm mb-2">
+                <h3 class="font-bold text-stone-900 text-sm mb-2">
                   {{ achievement.title }}
                 </h3>
-                <p class="text-gray-700 text-xs mb-3 line-clamp-2">
+                <p class="text-stone-700 text-xs mb-3 line-clamp-2">
                   {{ achievement.description }}
                 </p>
 
@@ -172,6 +171,8 @@ import Button from 'primevue/button'
 import Message from 'primevue/message'
 import Skeleton from 'primevue/skeleton'
 import ProgressBar from 'primevue/progressbar'
+import RankFrame from '@/components/RankFrame.vue'
+import {useTopRanks} from '@/composables/useTopRanks'
 import api from '@/api/client'
 import {apiUrl} from '@/api/config'
 
@@ -179,6 +180,10 @@ const router = useRouter()
 const route = useRoute()
 
 const student = ref(null)
+
+// Место в топе (1–4) для рамки аватарки
+const {ranks, load: loadRanks} = useTopRanks()
+const rank = computed(() => ranks.value[student.value?.id] || 0)
 const allAchievements = ref([])
 const completedAchievementIds = ref([])
 const isLoading = ref(false)
@@ -262,6 +267,7 @@ const goBack = () => {
 }
 
 onMounted(async () => {
+  loadRanks()
   await loadStudentData()
 })
 </script>

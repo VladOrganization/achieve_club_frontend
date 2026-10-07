@@ -5,19 +5,19 @@ requiresRoles: ['admin', 'supervisor']
 </route>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2">
+  <div class="min-h-screen p-2">
     <div class="max-w-2xl mx-auto">
       <!-- Если данные не отсканированы -->
       <div v-if="!scannedData" class="bg-white rounded-lg shadow-lg p-2">
         <div class="mb-2">
-          <p class="text-gray-600">
+          <p class="text-stone-600">
             📱 Отсканируйте QR-код для выполнения достижения
           </p>
           <qrcode-stream
               @detect="onDetect"
               @error="onError"
               :constraints="videoConstraints"
-              class="w-full rounded-lg overflow-hidden border-2 border-blue-300"
+              class="w-full rounded-lg overflow-hidden border-2 border-primary-300"
           />
         </div>
 
@@ -42,15 +42,15 @@ requiresRoles: ['admin', 'supervisor']
       <div v-else class="bg-white rounded-lg shadow-lg p-2">
         <!-- Информация о студенте -->
         <div
-            class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50
-                 rounded-lg border border-blue-200"
+            class="mb-8 p-6 bg-gradient-to-r from-primary-50 to-primary-100
+                 rounded-lg border border-primary-200"
         >
-          <h2 class="text-2xl font-bold text-gray-800">👤 {{ studentInfo }}</h2>
+          <h2 class="text-xl sm:text-2xl font-bold leading-tight text-stone-800 break-words">👤 {{ studentInfo }}</h2>
         </div>
 
         <!-- Список достижений -->
         <div class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">
+          <h2 class="text-2xl font-bold text-stone-800 mb-4">
             🏆 Достижения
           </h2>
 
@@ -64,10 +64,10 @@ requiresRoles: ['admin', 'supervisor']
             >
               <Button @click="removeAchievement(achievement.id)" icon="pi pi-trash" size="small" class="mr-2" aria-label="Save" severity="danger"/>
               <div class="flex-1">
-                <h3 class="font-semibold text-gray-800">
+                <h3 class="font-semibold text-stone-800">
                   {{ achievement.title }}
                 </h3>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-stone-600">
                   {{ achievement.description }}
                 </p>
               </div>
@@ -83,7 +83,7 @@ requiresRoles: ['admin', 'supervisor']
 
           <div
               v-else
-              class="p-4 text-center text-gray-500 bg-gray-50 rounded-lg"
+              class="p-4 text-center text-stone-500 bg-stone-50 rounded-lg"
           >
             Достижения не найдены
           </div>
@@ -94,17 +94,17 @@ requiresRoles: ['admin', 'supervisor']
             class="mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50
                  rounded-lg border-2 border-green-300"
         >
-          <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          <h3 class="text-lg font-semibold text-stone-800 mb-2">
             ✨ Суммарный опыт
           </h3>
           <div class="flex gap-2">
           <p class="text-4xl font-bold text-green-600">
             {{ totalExperience }}
-            <span class="text-lg text-gray-600">опыта</span>
+            <span class="text-lg text-stone-600">опыта</span>
           </p>
-          <p class="text-4xl font-bold text-blue-600">
+          <p class="text-4xl font-bold text-primary-600">
             {{ achievementsList.length }}
-            <span class="text-lg text-gray-600">{{ countText }}</span>
+            <span class="text-lg text-stone-600">{{ countText }}</span>
           </p>
           </div>
         </div>

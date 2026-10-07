@@ -1,19 +1,19 @@
 <template>
   <ForgotPasswordModal v-model="showForgotPasswordModal"/>
 
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
       <!-- Заголовок -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Вход</h1>
-        <p class="text-gray-600 text-sm mt-2">Введите ваши учетные данные</p>
+        <h1 class="text-3xl font-bold text-stone-800">Вход</h1>
+        <p class="text-stone-600 text-sm mt-2">Введите ваши учетные данные</p>
       </div>
 
       <!-- Форма -->
       <form @submit.prevent="handleLogin" class="space-y-5">
         <!-- Email -->
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="email" class="block text-sm font-medium text-stone-700 mb-2">
             Email
           </label>
           <InputText
@@ -31,7 +31,7 @@
 
         <!-- Пароль -->
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="password" class="block text-sm font-medium text-stone-700 mb-2">
             Пароль
           </label>
           <Password
@@ -54,7 +54,7 @@
               input-id="remember"
               binary
           />
-          <label for="remember" class="ml-2 text-sm text-gray-700">
+          <label for="remember" class="ml-2 text-sm text-stone-700">
             Запомнить меня
           </label>
         </div>
@@ -69,10 +69,10 @@
         />
       </form>
 
-      <div class="flex items-center gap-3 my-5 text-gray-400 text-sm">
-        <div class="flex-1 h-px bg-gray-200"></div>
+      <div class="flex items-center gap-3 my-5 text-stone-400 text-sm">
+        <div class="flex-1 h-px bg-stone-200"></div>
         <span>или</span>
-        <div class="flex-1 h-px bg-gray-200"></div>
+        <div class="flex-1 h-px bg-stone-200"></div>
       </div>
       <GoogleAuthButton mode="login"/>
 

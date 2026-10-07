@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center gap-2">
-    <div v-if="isLoading" class="h-10 flex items-center text-gray-500 text-sm">
+    <div v-if="isLoading" class="h-10 flex items-center text-stone-500 text-sm">
       <i class="pi pi-spin pi-spinner mr-2"></i>Подождите...
     </div>
     <div ref="buttonRoot" :class="{ hidden: isLoading }"></div>

@@ -12,16 +12,21 @@
       <!-- Аватарка -->
       <div class="flex flex-col items-center gap-3">
         <div
-            class="w-28 h-28 rounded-lg overflow-hidden bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center cursor-pointer"
+            class="w-28 h-28 rounded-lg overflow-hidden bg-gradient-to-br from-stone-300 to-stone-400 flex items-center justify-center cursor-pointer"
             @click="avatarInput.click()"
         >
           <img
-              v-if="avatarPreview || currentAvatar"
-              :src="avatarPreview || apiUrl(currentAvatar)"
+              v-if="avatarPreview"
+              :src="avatarPreview"
               alt="Аватарка"
               class="w-full h-full object-cover"
           />
-          <i v-else class="pi pi-user text-4xl text-white opacity-50"></i>
+          <UserAvatar
+              v-else
+              :src="currentAvatar ? apiUrl(currentAvatar) : ''"
+              :first-name="firstName"
+              :last-name="lastName"
+          />
         </div>
         <input
             ref="avatarInput"
@@ -40,18 +45,18 @@
       </div>
 
       <div>
-        <label for="edit-first-name" class="block text-sm font-medium text-gray-700 mb-2">Имя</label>
+        <label for="edit-first-name" class="block text-sm font-medium text-stone-700 mb-2">Имя</label>
         <InputText id="edit-first-name" v-model="form.firstName" class="w-full" @keyup.enter="save"/>
         <p v-if="errors.firstName" class="text-red-500 text-sm mt-1">{{ errors.firstName }}</p>
       </div>
 
       <div>
-        <label for="edit-last-name" class="block text-sm font-medium text-gray-700 mb-2">Фамилия</label>
+        <label for="edit-last-name" class="block text-sm font-medium text-stone-700 mb-2">Фамилия</label>
         <InputText id="edit-last-name" v-model="form.lastName" class="w-full" @keyup.enter="save"/>
         <p v-if="errors.lastName" class="text-red-500 text-sm mt-1">{{ errors.lastName }}</p>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-gray-200">
+      <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-stone-200">
         <Button
             label="Редактировать пароль"
             icon="pi pi-lock"

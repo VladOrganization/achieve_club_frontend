@@ -9,7 +9,7 @@
   >
     <div class="space-y-4">
       <div>
-        <label for="edit-new-password" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="edit-new-password" class="block text-sm font-medium text-stone-700 mb-2">
           Новый пароль
         </label>
         <Password
@@ -25,7 +25,7 @@
       </div>
 
       <div>
-        <label for="edit-confirm-password" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="edit-confirm-password" class="block text-sm font-medium text-stone-700 mb-2">
           Подтверждение пароля
         </label>
         <Password
@@ -41,9 +41,9 @@
         <p v-if="errors.confirmPassword" class="text-red-500 text-sm mt-1">{{ errors.confirmPassword }}</p>
       </div>
 
-      <div class="bg-blue-50 p-3 rounded-lg">
-        <p class="text-sm font-medium text-gray-700 mb-2">Требования:</p>
-        <ul class="text-sm text-gray-600 space-y-1">
+      <div class="bg-primary-50 p-3 rounded-lg">
+        <p class="text-sm font-medium text-stone-700 mb-2">Требования:</p>
+        <ul class="text-sm text-stone-600 space-y-1">
           <li :class="{ 'text-green-600': form.newPassword.length >= 8 }">✓ Минимум 8 символов</li>
           <li :class="{ 'text-green-600': /[A-Z]/.test(form.newPassword) }">✓ Минимум одна заглавная буква</li>
           <li :class="{ 'text-green-600': /[0-9]/.test(form.newPassword) }">✓ Минимум одна цифра</li>

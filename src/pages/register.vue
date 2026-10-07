@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
       <!-- Заголовок -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Регистрация</h1>
-        <p class="text-gray-600 text-sm mt-2">Создайте новый аккаунт</p>
+        <h1 class="text-3xl font-bold text-stone-800">Регистрация</h1>
+        <p class="text-stone-600 text-sm mt-2">Создайте новый аккаунт</p>
       </div>
 
       <!-- Индикатор этапов -->
@@ -19,8 +19,8 @@
               :class="[
               'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm',
               currentStep >= step
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-300 text-gray-600',
+                ? 'bg-primary-600 text-white'
+                : 'bg-stone-300 text-stone-600',
             ]"
           >
             {{ step }}
@@ -29,7 +29,7 @@
               v-if="step < 4"
               :class="[
               'flex-1 h-1 mx-2',
-              currentStep > step ? 'bg-indigo-600' : 'bg-gray-300',
+              currentStep > step ? 'bg-primary-600' : 'bg-stone-300',
             ]"
           />
         </div>
@@ -38,7 +38,7 @@
       <!-- Этап 1: Личные данные -->
       <form v-if="currentStep === 1" @submit.prevent="nextStep" class="space-y-4">
         <div>
-          <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="firstName" class="block text-sm font-medium text-stone-700 mb-2">
             Имя *
           </label>
           <InputText
@@ -53,7 +53,7 @@
         </div>
 
         <div>
-          <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="lastName" class="block text-sm font-medium text-stone-700 mb-2">
             Фамилия *
           </label>
           <InputText
@@ -68,7 +68,7 @@
         </div>
 
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="email" class="block text-sm font-medium text-stone-700 mb-2">
             Email *
           </label>
           <InputText
@@ -107,24 +107,24 @@
           />
         </div>
 
-        <div class="flex items-center gap-3 my-5 text-gray-400 text-sm">
-          <div class="flex-1 h-px bg-gray-200"></div>
+        <div class="flex items-center gap-3 my-5 text-stone-400 text-sm">
+          <div class="flex-1 h-px bg-stone-200"></div>
           <span>или</span>
-          <div class="flex-1 h-px bg-gray-200"></div>
+          <div class="flex-1 h-px bg-stone-200"></div>
         </div>
         <GoogleAuthButton mode="registration"/>
       </form>
 
       <!-- Этап 2: Подтверждение email -->
       <form v-if="currentStep === 2" @submit.prevent="nextStep" class="space-y-4">
-        <div class="bg-blue-50 p-4 rounded-lg mb-4 text-center">
-          <p class="text-sm text-gray-700">
+        <div class="bg-primary-50 p-4 rounded-lg mb-4 text-center">
+          <p class="text-sm text-stone-700">
             Подтвердите свою почту, введя код из письма
           </p>
         </div>
 
         <div>
-          <label for="verificationCode" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="verificationCode" class="block text-sm font-medium text-stone-700 mb-2">
             Код подтверждения *
           </label>
           <InputText
@@ -140,13 +140,13 @@
           </p>
         </div>
 
-        <div class="text-sm text-center text-gray-600">
+        <div class="text-sm text-center text-stone-600">
           <span>Не получили код? </span>
           <button
               type="button"
               :disabled="resendCountdown > 0 || isLoading"
               @click="resendCode"
-              class="text-indigo-600 hover:text-indigo-800 font-medium disabled:text-gray-400"
+              class="text-primary-600 hover:text-primary-800 font-medium disabled:text-stone-400"
           >
             {{
               resendCountdown > 0
@@ -190,7 +190,7 @@
       <!-- Этап 3: Установка пароля -->
       <form v-if="currentStep === 3" @submit.prevent="completeRegistration" class="space-y-4">
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="password" class="block text-sm font-medium text-stone-700 mb-2">
             Пароль *
           </label>
           <Password
@@ -207,9 +207,9 @@
           </p>
 
           <!-- Требования к паролю -->
-          <div class="bg-blue-50 p-3 rounded-lg mt-3">
-            <p class="text-xs font-medium text-gray-700 mb-2">Требования:</p>
-            <ul class="text-xs text-gray-600 space-y-1">
+          <div class="bg-primary-50 p-3 rounded-lg mt-3">
+            <p class="text-xs font-medium text-stone-700 mb-2">Требования:</p>
+            <ul class="text-xs text-stone-600 space-y-1">
               <li class="flex items-center gap-1.5" :class="{ 'text-green-600': form.password.length >= 8 }">
                 <i :class="['pi', form.password.length >= 8 ? 'pi-check-circle' : 'pi-circle']"></i>
                 <span>Минимум 8 символов</span>
@@ -235,7 +235,7 @@
         </div>
 
         <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="confirmPassword" class="block text-sm font-medium text-stone-700 mb-2">
             Подтверждение пароля *
           </label>
           <Password
@@ -279,8 +279,8 @@
 
       <!-- Этап 4: Аватарка (можно пропустить) -->
       <div v-if="currentStep === 4" class="space-y-4">
-        <div class="bg-blue-50 p-4 rounded-lg text-center">
-          <p class="text-sm text-gray-700">
+        <div class="bg-primary-50 p-4 rounded-lg text-center">
+          <p class="text-sm text-stone-700">
             Добавьте аватарку — этот шаг можно пропустить и сделать позже
           </p>
         </div>
@@ -288,7 +288,7 @@
         <div class="flex flex-col items-center gap-3">
           <button
               type="button"
-              class="group relative w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center cursor-pointer"
+              class="group relative w-32 h-32 rounded-full overflow-hidden bg-stone-200 flex items-center justify-center cursor-pointer"
               :disabled="isLoading"
               aria-label="Выбрать фото"
               @click="avatarInput.click()"
@@ -299,7 +299,7 @@
                 alt="Предпросмотр аватарки"
                 class="w-full h-full object-cover"
             />
-            <i v-else class="pi pi-user text-7xl text-gray-400"></i>
+            <i v-else class="pi pi-user text-7xl text-stone-400"></i>
             <span class="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <i class="pi pi-camera text-3xl"></i>
             </span>
@@ -348,11 +348,11 @@
       </div>
 
       <!-- Ссылка на вход -->
-      <div v-if="currentStep < 4" class="mt-6 text-center text-sm text-gray-600">
+      <div v-if="currentStep < 4" class="mt-6 text-center text-sm text-stone-600">
         <span>Уже есть аккаунт? </span>
         <router-link
             to="/login"
-            class="text-indigo-600 hover:text-indigo-800 font-medium"
+            class="text-primary-600 hover:text-primary-800 font-medium"
         >
           Войти
         </router-link>

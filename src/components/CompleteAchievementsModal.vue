@@ -7,22 +7,22 @@
       class="w-full max-w-md"
       @hide="onHide"
       :pt="{
-      header: { class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0 rounded-xl' },
+      header: { class: 'bg-gradient-to-r from-primary-400 to-primary-600 text-white border-0 rounded-xl' },
       title: { class: 'text-white font-bold' }
     }"
   >
     <!-- Содержимое модального окна -->
     <div class="space-y-3">
       <!-- Инструкция -->
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
-        <p class="text-sm text-blue-900">
+      <div class="bg-primary-50 border border-primary-200 rounded-lg p-4 mt-2">
+        <p class="text-sm text-primary-900">
           🎯 Отсканируйте QR-код для подтверждения выполнения достижений
         </p>
       </div>
 
       <!-- Выбранные достижения (баджи) -->
       <div>
-        <p class="text-sm font-medium text-gray-700 mb-3">
+        <p class="text-sm font-medium text-stone-700 mb-3">
           Выбранные достижения:
         </p>
         <div class="flex flex-wrap gap-2">
@@ -30,9 +30,9 @@
               v-for="achievement in selectedAchievementsData"
               :key="achievement.id"
               :value="achievement.title"
-              class="bg-indigo-100 text-indigo-800 px-3 py-2 rounded-full text-xs font-medium"
+              class="bg-primary-100 text-primary-800 px-3 py-2 rounded-full text-xs font-medium"
               :pt="{
-              root: { class: 'bg-indigo-100 text-indigo-800' }
+              root: { class: 'bg-primary-100 text-primary-800' }
             }"
           />
         </div>
@@ -41,17 +41,17 @@
       <!-- Информация -->
       <div class="grid grid-cols-2 gap-4 text-center">
         <div class="bg-green-50 rounded-lg p-3 border border-green-200">
-          <p class="text-gray-600 text-xs">Достижений</p>
+          <p class="text-stone-600 text-xs">Достижений</p>
           <p class="text-2xl font-bold text-green-600">{{ selectedAchievements.length }}</p>
         </div>
-        <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
-          <p class="text-gray-600 text-xs">Всего XP</p>
-          <p class="text-2xl font-bold text-blue-600">+{{ totalXP }}</p>
+        <div class="bg-primary-50 rounded-lg p-3 border border-primary-200">
+          <p class="text-stone-600 text-xs">Всего XP</p>
+          <p class="text-2xl font-bold text-primary-600">+{{ totalXP }}</p>
         </div>
       </div>
 
       <!-- QR Код -->
-      <div class="bg-gray-50 rounded-lg p-2 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
+      <div class="bg-stone-50 rounded-lg p-2 border-2 border-dashed border-stone-300 flex flex-col items-center justify-center">
         <div v-if="qrCodeData" class="bg-white p-4 rounded-lg shadow-md">
           <QRCode
               @click="showDebugInfo = !showDebugInfo"
@@ -68,12 +68,12 @@
       </div>
 
       <!-- Информация для отладки (опционально) -->
-      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200" v-if="showDebugInfo">
-        <p class="text-xs text-gray-600 mb-2 font-medium">Информация:</p>
-        <p class="text-xs text-gray-500 break-all font-mono">
+      <div class="bg-stone-50 rounded-lg p-3 border border-stone-200" v-if="showDebugInfo">
+        <p class="text-xs text-stone-600 mb-2 font-medium">Информация:</p>
+        <p class="text-xs text-stone-500 break-all font-mono">
           ID студента: {{ studentId }}
         </p>
-        <p class="text-xs text-gray-500 break-all font-mono mt-1">
+        <p class="text-xs text-stone-500 break-all font-mono mt-1">
           Достижения: {{ selectedAchievements.join(', ') }}
         </p>
       </div>

@@ -5,13 +5,13 @@ meta:
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-6 px-4">
+  <div class="min-h-screen py-6 px-4">
     <Toast/>
     <div class="max-w-5xl mx-auto">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Заказы</h1>
-          <p class="text-gray-600 mt-1">Показано: <span class="font-semibold">{{ filteredOrders.length }}</span>
+          <h1 class="text-3xl font-bold text-stone-900">Заказы</h1>
+          <p class="text-stone-600 mt-1">Показано: <span class="font-semibold">{{ filteredOrders.length }}</span>
             из {{ orders.length }}</p>
         </div>
         <div class="flex gap-2">
@@ -22,7 +22,7 @@ meta:
         </div>
       </div>
 
-      <div v-if="isLoading && orders.length === 0" class="text-center text-gray-500 py-10">
+      <div v-if="isLoading && orders.length === 0" class="text-center text-stone-500 py-10">
         <i class="pi pi-spin pi-spinner text-2xl"></i>
       </div>
 
@@ -35,45 +35,45 @@ meta:
         <div
             v-for="order in filteredOrders"
             :key="order.id"
-            class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col sm:flex-row gap-4"
+            class="bg-white border border-stone-200 rounded-lg p-4 shadow-sm flex flex-col sm:flex-row gap-4"
         >
           <img
               v-if="order.photo"
               :src="photoUrl(order.photo)"
-              class="w-20 h-20 rounded-lg object-cover bg-gray-100 shrink-0"
+              class="w-20 h-20 rounded-lg object-cover bg-stone-100 shrink-0"
               alt=""
           />
           <div v-else
-               class="w-20 h-20 rounded-lg bg-gray-100 shrink-0 flex items-center justify-center text-gray-400">
+               class="w-20 h-20 rounded-lg bg-stone-100 shrink-0 flex items-center justify-center text-stone-400">
             <i class="pi pi-image text-2xl"></i>
           </div>
 
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 text-xs text-gray-500">
+            <div class="flex items-center gap-2 text-xs text-stone-500">
               <span>№{{ order.id }}</span>
               <span>·</span>
               <span>{{ formatDate(order.orderDate) }}</span>
             </div>
-            <p class="font-semibold text-gray-900">{{ order.productTitle }}
-              <span class="text-gray-500 font-normal">({{ order.productType }})</span>
+            <p class="font-semibold text-stone-900">{{ order.productTitle }}
+              <span class="text-stone-500 font-normal">({{ order.productType }})</span>
             </p>
-            <p class="text-sm text-gray-700">
+            <p class="text-sm text-stone-700">
               Вариант: {{ order.variantName }}
-              <span v-if="order.variantColor" class="text-gray-500">· {{ order.variantColor }}</span>
+              <span v-if="order.variantColor" class="text-stone-500">· {{ order.variantColor }}</span>
             </p>
-            <p class="text-sm text-gray-700 mt-1">
+            <p class="text-sm text-stone-700 mt-1">
               <i class="pi pi-user text-xs"></i>
               {{ order.userFirstName }} {{ order.userLastName }}
-              <span class="text-gray-500 break-all">· {{ order.userEmail }}</span>
+              <span class="text-stone-500 break-all">· {{ order.userEmail }}</span>
             </p>
-            <p class="text-blue-600 font-bold mt-1">{{ order.price }} XP</p>
+            <p class="text-primary-600 font-bold mt-1">{{ order.price }} XP</p>
           </div>
 
           <div class="flex flex-col gap-2 sm:w-52 shrink-0" :class="{ 'justify-center': isCancelled(order) }">
             <span
                 class="text-xs font-medium px-2 py-1 rounded-full text-white"
                 :class="isCancelled(order) ? 'self-center' : 'self-start'"
-                :style="{ backgroundColor: order.deliveryColor || '#6b7280' }"
+                :style="{ backgroundColor: order.deliveryColor || '#78716c' }"
             >{{ order.deliveryStatus }}</span>
             <Select
                 v-if="!isCancelled(order)"
@@ -111,17 +111,17 @@ meta:
         @update:visible="!$event && !cancellingId && (orderToCancel = null)"
     >
       <div v-if="orderToCancel" class="flex flex-col gap-3">
-        <p class="text-gray-700">
+        <p class="text-stone-700">
           Отменить заказ <span class="font-semibold">№{{ orderToCancel.id }}</span>
           «{{ orderToCancel.productTitle }}» ({{ orderToCancel.variantName }})?
         </p>
-        <ul class="text-sm text-gray-600 list-disc pl-5">
+        <ul class="text-sm text-stone-600 list-disc pl-5">
           <li>Товар вернётся на склад (+1 к количеству варианта)</li>
           <li>{{ orderToCancel.price }} XP вернутся на баланс {{ orderToCancel.userFirstName }}
             {{ orderToCancel.userLastName }}
           </li>
         </ul>
-        <p class="text-sm text-gray-500">Это действие нельзя отменить.</p>
+        <p class="text-sm text-stone-500">Это действие нельзя отменить.</p>
       </div>
       <template #footer>
         <PrimeButton label="Назад" severity="secondary" text :disabled="!!cancellingId"

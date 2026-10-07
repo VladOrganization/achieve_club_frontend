@@ -6,46 +6,46 @@ meta:
 <template>
   <!-- Для недоступной категории страница ровно во всю высоту экрана (минус нижняя навигация) без прокрутки -->
   <div
-      class="bg-gray-50 py-6 px-4"
+      class="py-6 px-4"
       :class="showBanner ? 'h-[calc(100dvh-4rem)] overflow-hidden flex flex-col' : 'min-h-screen'"
   >
     <Toast/>
     <div class="max-w-6xl mx-auto w-full" :class="{ 'flex-1 min-h-0 flex flex-col': showBanner }">
       <!-- Шапка: категория + баланс -->
       <div class="mb-3">
-        <h1 class="text-3xl font-bold text-gray-900">Магазин</h1>
-        <div class="mt-1 flex items-center gap-2 text-gray-600">
+        <h1 class="text-3xl font-bold text-stone-900">Магазин</h1>
+        <div class="mt-1 flex items-center gap-2 text-stone-600">
           <i class="pi pi-wallet"></i>
           <span>Баланс:</span>
-          <span class="font-bold text-blue-600 text-lg">{{ balance ?? '—' }} XP</span>
+          <span class="font-bold text-primary-600 text-lg">{{ balance ?? '—' }} XP</span>
         </div>
       </div>
 
       <!-- Заказы пользователя (только если они есть) -->
       <section v-if="orders.length > 0" class="mb-5">
-        <h2 class="text-lg font-semibold text-gray-900 mb-2">
-          Мои заказы <span class="text-gray-500 font-normal">({{ orders.length }})</span>
+        <h2 class="text-lg font-semibold text-stone-900 mb-2">
+          Мои заказы <span class="text-stone-500 font-normal">({{ orders.length }})</span>
         </h2>
 
         <div class="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x">
           <div
               v-for="order in orders"
               :key="order.id"
-              class="snap-start shrink-0 w-64 bg-white border border-gray-200 rounded-lg p-3 shadow-sm flex gap-3"
+              class="snap-start shrink-0 w-64 bg-white border border-stone-200 rounded-lg p-3 shadow-sm flex gap-3"
           >
             <img v-if="order.photo" :src="photoUrl(order.photo)"
-                 class="w-14 h-14 rounded-lg object-cover bg-gray-100 shrink-0" alt=""/>
+                 class="w-14 h-14 rounded-lg object-cover bg-stone-100 shrink-0" alt=""/>
             <div v-else
-                 class="w-14 h-14 rounded-lg bg-gray-100 shrink-0 flex items-center justify-center text-gray-400">
+                 class="w-14 h-14 rounded-lg bg-stone-100 shrink-0 flex items-center justify-center text-stone-400">
               <i class="pi pi-image"></i>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="font-semibold text-gray-900 text-sm truncate">{{ order.productTitle }}</p>
-              <p class="text-xs text-gray-500 truncate">{{ order.productType }} · {{ order.color }}</p>
-              <p class="text-xs text-gray-500">{{ formatDate(order.orderDate) }} · {{ order.price }} XP</p>
+              <p class="font-semibold text-stone-900 text-sm truncate">{{ order.productTitle }}</p>
+              <p class="text-xs text-stone-500 truncate">{{ order.productType }} · {{ order.color }}</p>
+              <p class="text-xs text-stone-500">{{ formatDate(order.orderDate) }} · {{ order.price }} XP</p>
               <span
                   class="inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-full text-white"
-                  :style="{ backgroundColor: order.deliveryColor || '#6b7280' }"
+                  :style="{ backgroundColor: order.deliveryColor || '#78716c' }"
               >{{ order.deliveryStatus }}</span>
             </div>
           </div>
@@ -53,7 +53,7 @@ meta:
       </section>
 
       <!-- Категории -->
-      <Tabs v-if="categories.length > 0" v-model:value="categoryId" scrollable class="mb-5">
+      <Tabs v-if="categories.length > 1"v-model:value="categoryId" scrollable class="mb-5">
         <TabList>
           <Tab v-for="c in categories" :key="c.id" :value="c.id" class="whitespace-nowrap">
             {{ c.title }}
@@ -66,13 +66,13 @@ meta:
         <img v-if="currentCategory.banner" :src="photoUrl(currentCategory.banner)"
              :alt="currentCategory.title" class="w-full h-full rounded-xl object-contain"/>
         <div v-else
-             class="h-full flex flex-col items-center justify-center bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500">
+             class="h-full flex flex-col items-center justify-center bg-white border border-stone-200 rounded-xl p-8 text-center text-stone-500">
           <i class="pi pi-lock text-3xl mb-2"></i>
           <p>Категория «{{ currentCategory.title }}» пока недоступна</p>
         </div>
       </div>
 
-      <div v-else-if="isLoading" class="text-center text-gray-500 py-16">
+      <div v-else-if="isLoading" class="text-center text-stone-500 py-16">
         <i class="pi pi-spin pi-spinner text-3xl"></i>
       </div>
 
@@ -85,27 +85,27 @@ meta:
         <div
             v-for="product in products"
             :key="product.id"
-            class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col"
+            class="bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden flex flex-col"
         >
-          <button type="button" class="block aspect-square bg-gray-100 w-full" @click="openProduct(product)">
+          <button type="button" class="block aspect-square bg-stone-100 w-full" @click="openProduct(product)">
             <img v-if="cardPhoto(product)" :src="photoUrl(cardPhoto(product))"
                  class="w-full h-full object-cover" :alt="product.title"/>
-            <span v-else class="w-full h-full flex items-center justify-center text-gray-400">
+            <span v-else class="w-full h-full flex items-center justify-center text-stone-400">
               <i class="pi pi-image text-4xl"></i>
             </span>
           </button>
 
           <div class="p-3 flex flex-col gap-2 flex-1">
             <div class="min-w-0">
-              <p class="font-semibold text-gray-900 truncate">{{ product.title }}</p>
-              <p class="text-xs text-gray-500 truncate">{{ product.type }}</p>
+              <p class="font-semibold text-stone-900 truncate">{{ product.title }}</p>
+              <p class="text-xs text-stone-500 truncate">{{ product.type }}</p>
             </div>
 
             <div v-if="product.variants.length > 1" class="flex flex-wrap gap-1.5">
               <span
                   v-for="v in product.variants"
                   :key="v.id"
-                  class="w-5 h-5 rounded-full border border-gray-300"
+                  class="w-5 h-5 rounded-full border border-stone-300"
                   :class="{ 'opacity-30': !v.available }"
                   :style="{ backgroundColor: cssColor(v.color) }"
                   :title="v.available ? v.color : `${v.color} — нет в наличии`"
@@ -136,22 +136,22 @@ meta:
     >
       <template #header>
         <div class="min-w-0 pr-2">
-          <p class="text-base font-semibold text-gray-900 leading-tight line-clamp-2">
+          <p class="text-base font-semibold text-stone-900 leading-tight line-clamp-2">
             {{ details?.title || selectedProduct?.title }}
           </p>
-          <p class="text-xs text-gray-500 mt-0.5 truncate">
+          <p class="text-xs text-stone-500 mt-0.5 truncate">
             {{ details?.type || selectedProduct?.type }}
           </p>
         </div>
       </template>
-      <div v-if="isDetailsLoading" class="text-center text-gray-500 py-16">
+      <div v-if="isDetailsLoading" class="text-center text-stone-500 py-16">
         <i class="pi pi-spin pi-spinner text-3xl"></i>
       </div>
 
       <div v-else-if="details" class="flex flex-col gap-4">
         <!-- Карусель фото выбранного цвета -->
         <div v-if="galleryPhotos.length > 0" class="flex flex-col gap-2">
-          <div class="relative bg-gray-100 rounded-lg overflow-hidden select-none"
+          <div class="relative bg-stone-100 rounded-lg overflow-hidden select-none"
                @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
             <img :src="photoUrl(galleryPhotos[photoIndex].url)" :alt="details.title"
                  class="w-full h-72 sm:h-96 object-contain"/>
@@ -179,7 +179,7 @@ meta:
                 :key="photo.url"
                 type="button"
                 class="shrink-0 w-16 h-16 rounded-md overflow-hidden border-2"
-                :class="i === photoIndex ? 'border-blue-600' : 'border-transparent opacity-70'"
+                :class="i === photoIndex ? 'border-primary-600' : 'border-transparent opacity-70'"
                 @click="photoIndex = i"
             >
               <img :src="photoUrl(photo.url)" alt="" class="w-full h-full object-cover"/>
@@ -187,14 +187,14 @@ meta:
           </div>
         </div>
         <div v-else
-             class="h-48 rounded-lg bg-gray-100 flex flex-col items-center justify-center text-gray-400">
+             class="h-48 rounded-lg bg-stone-100 flex flex-col items-center justify-center text-stone-400">
           <i class="pi pi-image text-5xl"></i>
           <span class="text-sm mt-2">Нет фото</span>
         </div>
 
         <!-- Выбор цвета -->
         <div v-if="details.variants.length > 1" class="flex flex-col gap-2">
-          <p class="text-sm text-gray-700">
+          <p class="text-sm text-stone-700">
             Цвет: <span class="font-semibold">{{ selectedVariant.title }}</span>
           </p>
           <div class="flex flex-wrap gap-3">
@@ -203,7 +203,7 @@ meta:
                 :key="v.id"
                 type="button"
                 class="relative w-10 h-10 rounded-full border-2 transition"
-                :class="v.id === selectedVariantId ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-300'"
+                :class="v.id === selectedVariantId ? 'border-primary-600 ring-2 ring-primary-200' : 'border-stone-300'"
                 :style="{ backgroundColor: cssColor(v.color) }"
                 :title="v.available ? v.title : `${v.title} — нет в наличии`"
                 @click="selectedVariantId = v.id"
@@ -216,14 +216,14 @@ meta:
           </div>
         </div>
 
-        <div v-if="details.details" class="text-sm text-gray-700 whitespace-pre-line">
+        <div v-if="details.details" class="text-sm text-stone-700 whitespace-pre-line">
           {{ details.details }}
         </div>
       </div>
 
       <template #footer>
         <div class="w-full flex items-center justify-between gap-3">
-          <span class="text-2xl font-bold text-blue-600">{{ details?.price ?? selectedProduct?.price }} XP</span>
+          <span class="text-2xl font-bold text-primary-600">{{ details?.price ?? selectedProduct?.price }} XP</span>
           <Button
               class="flex-1 sm:flex-none sm:min-w-56"
               icon="pi pi-shopping-cart"

@@ -4,7 +4,7 @@ meta:
 </route>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen py-4 px-3 md:py-8 md:px-4">
     <Toast/>
     <div class="max-w-4xl mx-auto">
       <!-- Состояние загрузки -->
@@ -23,29 +23,26 @@ meta:
       <div v-if="!isLoading && student" class="space-y-6">
         <!-- Карточка профиля -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="h-32 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
-          <div class="px-6 pb-6">
+          <ProfileCover/>
+          <div class="px-4 pb-4 md:px-6 md:pb-6">
             <div class="flex flex-col md:flex-row md:items-end gap-6 -mt-16 mb-6">
               <!-- Аватарка -->
               <div class="relative">
-                <img
-                    v-if="student.avatar && loadedImages.avatar"
-                    :src="apiUrl(student.avatar)"
-                    :alt="`${student.firstName} ${student.lastName}`"
-                    class="w-32 h-32 rounded-lg shadow-lg object-cover border-4 border-white"
-                    @error="handleImageError('avatar')"
-                />
-                <div
-                    v-else
-                    class="w-32 h-32 rounded-lg shadow-lg bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center border-4 border-white"
-                >
-                  <i class="pi pi-user text-5xl text-white opacity-50"></i>
-                </div>
+                <!-- Рамка для первых четырёх мест в топе (без места — обычная белая обводка) -->
+                <RankFrame :rank="rank" :thickness="4" reserve plain-class="bg-white" class="w-32 h-32 rounded-lg shadow-lg">
+                  <div class="w-full h-full rounded-[4px] overflow-hidden">
+                    <UserAvatar
+                        :src="student.avatar ? apiUrl(student.avatar) : ''"
+                        :first-name="student.firstName"
+                        :last-name="student.lastName"
+                    />
+                  </div>
+                </RankFrame>
               </div>
 
               <!-- Информация профиля -->
-              <div class="flex-1">
-                <h1 class="text-3xl font-bold text-gray-900">
+              <div class="flex-1 min-w-0">
+                <h1 class="text-2xl sm:text-3xl font-bold leading-tight text-stone-900 break-words line-clamp-3">
                   {{ student.firstName }} {{ student.lastName }}
                 </h1>
               </div>
@@ -72,40 +69,42 @@ meta:
               </div>
             </div>
 
-            <!-- Статистика -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-                <p class="text-gray-600 text-sm font-medium">Общий опыт</p>
-                <p class="text-3xl font-bold text-indigo-600 mt-2">
+            <!-- Статистика: у всех карточек одинаковая структура — заголовок, значение, нижняя строка на одной высоте -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+              <div class="flex flex-col rounded-lg p-3 md:p-4 border bg-primary-50 border-primary-200">
+                <p class="text-stone-600 text-sm font-medium leading-5">Общий опыт</p>
+                <p class="text-3xl font-bold leading-9 text-primary-600 mt-2">
                   {{ formatNumber(student.xpSum) }}
                 </p>
-                <p class="text-gray-600 text-xs mt-1">XP</p>
+                <div class="mt-3 h-4 flex items-center text-stone-600 text-xs">XP</div>
               </div>
 
-              <div class="bg-green-50 rounded-lg p-4 border border-green-200">
-                <p class="text-gray-600 text-sm font-medium">Выполненные достижения</p>
-                <p class="text-3xl font-bold text-green-600 mt-2">
+              <div class="flex flex-col rounded-lg p-3 md:p-4 border bg-green-50 border-green-200">
+                <p class="text-stone-600 text-sm font-medium leading-5">Выполненные достижения</p>
+                <p class="text-3xl font-bold leading-9 text-green-600 mt-2">
                   {{ completedAchievements.length }}
                 </p>
-                <p class="text-gray-600 text-xs mt-1">
+                <div class="mt-3 h-4 flex items-center text-stone-600 text-xs">
                   из {{ totalAchievements }}
-                </p>
+                </div>
               </div>
 
-              <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <p class="text-gray-600 text-sm font-medium">Процент завершения</p>
-                <p class="text-3xl font-bold text-blue-600 mt-2">
+              <div class="flex flex-col rounded-lg p-3 md:p-4 border bg-amber-50 border-amber-200">
+                <p class="text-stone-600 text-sm font-medium leading-5">Процент завершения</p>
+                <p class="text-3xl font-bold leading-9 text-amber-600 mt-2">
                   {{ completionPercentage }}%
                 </p>
-                <ProgressBar
-                    :value="completionPercentage"
-                    :show-value="false"
-                    class="mt-3 h-2 bg-blue-200"
-                    :pt="{
-                    root: { class: 'h-2 bg-blue-200' },
-                    value: { class: 'bg-gradient-to-r from-blue-500 to-cyan-500' }
-                  }"
-                />
+                <div class="mt-3 h-4 flex items-center">
+                  <ProgressBar
+                      :value="completionPercentage"
+                      :show-value="false"
+                      class="w-full"
+                      :pt="{
+                      root: { class: 'h-2 !bg-amber-200 rounded-full' },
+                      value: { class: 'bg-gradient-to-r from-amber-400 to-primary-500 rounded-full' }
+                    }"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -113,20 +112,20 @@ meta:
 
         <!-- Вкладки достижений -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <TabView v-model:activeIndex="activeTab">
+          <TabView v-model:activeIndex="activeTab" :pt="{ panelContainer: { class: '!p-0' } }">
             <!-- Вкладка выполненных достижений -->
             <TabPanel
                 header="Выполненные"
                 :header-style="{ 'flex': '1 1 0', 'display': 'flex' }"
                 :pt="{ headerAction: { class: 'w-full justify-center !flex !flex-1' }
             }">
-              <div class="p-6">
+              <div class="p-4 md:p-6">
                 <div
                     v-if="completedAchievements.length === 0"
                     class="text-center py-12"
                 >
-                  <i class="pi pi-inbox text-5xl text-gray-300 mb-4"></i>
-                  <p class="text-gray-500 text-lg">
+                  <i class="pi pi-inbox text-5xl text-stone-300 mb-4"></i>
+                  <p class="text-stone-500 text-lg">
                     Выполненные достижения не найдены
                   </p>
                 </div>
@@ -159,10 +158,10 @@ meta:
                     </div>
 
                     <!-- Информация -->
-                    <h3 class="font-bold text-gray-900 text-sm mb-2">
+                    <h3 class="font-bold text-stone-900 text-sm mb-2">
                       {{ achievement.title }}
                     </h3>
-                    <p class="text-gray-700 text-xs mb-3 line-clamp-2">
+                    <p class="text-stone-700 text-xs mb-3 line-clamp-2">
                       {{ achievement.description }}
                     </p>
 
@@ -182,13 +181,13 @@ meta:
                       :header-style="{ 'flex': '1 1 0', 'display': 'flex' }"
                       :pt="{ headerAction: { class: 'w-full justify-center !flex !flex-1' }
             }">
-              <div class="p-6">
+              <div class="p-4 md:p-6">
                 <!-- Инструкция -->
                 <div
                     v-if="uncompletedAchievements.length > 0"
-                    class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"
+                    class="bg-primary-50 border border-primary-200 rounded-lg p-3 mb-4"
                 >
-                  <p class="text-sm text-blue-900">
+                  <p class="text-sm text-primary-900">
                     💡 Выберите достижения, которые были выполнены, и нажмите кнопку внизу
                   </p>
                 </div>
@@ -198,7 +197,7 @@ meta:
                     class="text-center py-12"
                 >
                   <i class="pi pi-check-circle text-5xl text-green-300 mb-4"></i>
-                  <p class="text-gray-500 text-lg">
+                  <p class="text-stone-500 text-lg">
                     Все достижения выполнены!
                   </p>
                 </div>
@@ -211,17 +210,17 @@ meta:
                       v-for="achievement in uncompletedAchievements"
                       :key="achievement.id"
                       :class="[
-                      'bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 cursor-pointer transition-all duration-300',
+                      'bg-gradient-to-br from-stone-50 to-stone-100 rounded-lg p-4 border-2 cursor-pointer transition-all duration-300',
                       selectedAchievements.includes(achievement.id)
-                        ? 'border-indigo-500 shadow-lg bg-indigo-50 to-indigo-100'
-                        : 'border-gray-300 hover:shadow-md opacity-75 hover:opacity-100'
+                        ? 'border-primary-500 shadow-lg bg-primary-50 to-primary-100'
+                        : 'border-stone-300 hover:shadow-md opacity-75 hover:opacity-100'
                     ]"
                       @click="toggleAchievementSelection(achievement.id)"
                   >
                     <!-- Checkbox и логотип -->
                     <div class="flex items-start justify-between mb-4">
                       <div class="flex items-start gap-3">
-                        <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center flex-shrink-0 border-2 border-gray-300">
+                        <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center flex-shrink-0 border-2 border-stone-300">
                           <img
                               v-if="loadedImages[achievement.id]"
                               :src="apiUrl(achievement.logoURL)"
@@ -237,8 +236,8 @@ meta:
                               v-else
                               class="pi pi-lock text-3xl"
                               :class="{
-                              'text-indigo-500': selectedAchievements.includes(achievement.id),
-                              'text-gray-400': !selectedAchievements.includes(achievement.id)
+                              'text-primary-500': selectedAchievements.includes(achievement.id),
+                              'text-stone-400': !selectedAchievements.includes(achievement.id)
                             }"
                           ></i>
                         </div>
@@ -247,8 +246,8 @@ meta:
                           :class="[
                           'text-white px-3 py-2 rounded-lg shadow-md text-center',
                           selectedAchievements.includes(achievement.id)
-                            ? 'bg-gradient-to-r from-indigo-500 to-indigo-600'
-                            : 'bg-gray-400'
+                            ? 'bg-gradient-to-r from-primary-400 to-primary-600'
+                            : 'bg-stone-400'
                         ]"
                       >
                         <p class="text-xs font-bold">+{{ achievement.xp }}</p>
@@ -257,10 +256,10 @@ meta:
                     </div>
 
                     <!-- Информация -->
-                    <h3 class="font-bold text-gray-900 text-sm mb-2">
+                    <h3 class="font-bold text-stone-900 text-sm mb-2">
                       {{ achievement.title }}
                     </h3>
-                    <p class="text-gray-700 text-xs mb-3 line-clamp-2">
+                    <p class="text-stone-700 text-xs mb-3 line-clamp-2">
                       {{ achievement.description }}
                     </p>
 
@@ -270,8 +269,8 @@ meta:
                           :class="[
                           'inline-block px-3 py-1 rounded-full text-xs font-bold',
                           selectedAchievements.includes(achievement.id)
-                            ? 'bg-indigo-500 text-white'
-                            : 'bg-gray-500 text-white'
+                            ? 'bg-primary-500 text-white'
+                            : 'bg-stone-500 text-white'
                         ]"
                       >
                         {{
@@ -295,11 +294,11 @@ meta:
             v-if="selectedAchievements.length > 0"
             class="fixed bottom-8 right-8 flex flex-col gap-2 z-50"
         >
-          <div class="bg-white rounded-lg shadow-lg p-4 border-l-4 border-indigo-600">
-            <p class="text-sm font-medium text-gray-900 mb-3">
-              Выбрано достижений: <span class="text-indigo-600 font-bold">{{ selectedAchievements.length }}</span>
+          <div class="bg-white rounded-lg shadow-lg p-4 border-l-4 border-primary-600">
+            <p class="text-sm font-medium text-stone-900 mb-3">
+              Выбрано достижений: <span class="text-primary-600 font-bold">{{ selectedAchievements.length }}</span>
             </p>
-            <p class="text-xs text-gray-600 mb-3">
+            <p class="text-xs text-stone-600 mb-3">
               XP к получению: <span class="text-green-600 font-bold">+{{ totalSelectedXP }}</span>
             </p>
             <div class="flex gap-2">
@@ -364,6 +363,8 @@ import ProgressBar from 'primevue/progressbar'
 import Checkbox from 'primevue/checkbox'
 import CompleteAchievementsModal from '@/components/CompleteAchievementsModal.vue'
 import EditProfileModal from '@/components/EditProfileModal.vue'
+import RankFrame from '@/components/RankFrame.vue'
+import {useTopRanks} from '@/composables/useTopRanks'
 import api from '@/api/client'
 import {apiUrl, API_CONFIG} from '@/api/config'
 import {useAuthStore} from "@/stores/auth.js";
@@ -373,6 +374,10 @@ const authStore = useAuthStore()
 const toast = useToast()
 
 const student = ref(null)
+
+// Место в топе (1–4) для рамки аватарки
+const {ranks, load: loadRanks} = useTopRanks()
+const rank = computed(() => ranks.value[student.value?.id] || 0)
 const allAchievements = ref([])
 const completedAchievementIds = ref([])
 const selectedAchievements = ref([])
@@ -569,6 +574,7 @@ const signOut = () => {
 }
 
 onMounted(async () => {
+  loadRanks()
   await loadStudentData()
   if (student.value) await startSignalR(student.value.id)
 })
