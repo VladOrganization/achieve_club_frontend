@@ -124,7 +124,7 @@ meta:
         </div>
 
         <!-- Вкладки достижений -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden relative">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
           <TabView v-model:activeIndex="activeTab" :pt="{ panelContainer: { class: '!p-0' } }">
             <!-- Вкладка выполненных достижений -->
             <TabPanel
@@ -636,13 +636,6 @@ onBeforeUnmount(() => {
 :deep(.p-tabview-tablist) {
   display: flex !important;
   width: 100% !important;
-  position: relative !important; /* иначе ink-bar позиционируется относительно страницы */
-}
-
-:deep(.p-tabview-tablist-container),
-:deep(.p-tabview-nav-container) {
-  position: relative;
-  overflow: hidden;
 }
 
 /* Элементы списка вкладок */

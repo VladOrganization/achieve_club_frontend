@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed bottom-0 left-0 right-0 border-t border-stone-200 bg-white shadow-lg">
+  <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-stone-200 bg-white shadow-lg">
     <div class="flex justify-around items-center h-16">
       <RouterLink
           v-for="item in navItems"
